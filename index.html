@@ -1,0 +1,2347 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TYZON 3D Food Trailer Configurator</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #E6E9E5;
+    --surface: #F6F7F4;
+    --raise: #FFFFFF;
+    --ink: #1A2025;
+    --ink-2: #56626A;
+    --ink-3: #87919A;
+    --line: #CDD3CF;
+    --chip: #ECEFEA;
+    --accent: #D47E1B;
+    --accent-ink: #1C1206;
+    --stage-hi: #F5F6F3;
+    --stage-lo: #D2D8D4;
+    --warn: #9A4A1C;
+    --focus: #2E6AB8;
+    --shadow: 0 1px 2px rgba(20, 28, 34, .06), 0 10px 28px rgba(20, 28, 34, .07);
+    --font-body: "Barlow", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    --font-display: "Barlow Condensed", "PingFang SC", "Microsoft YaHei", "Arial Narrow", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111417;
+      --surface: #191D21;
+      --raise: #21262B;
+      --ink: #E5E8E3;
+      --ink-2: #A2ACB3;
+      --ink-3: #6F7981;
+      --line: #2E353B;
+      --chip: #23292E;
+      --accent: #EE9C3E;
+      --accent-ink: #1C1206;
+      --stage-hi: #262C31;
+      --stage-lo: #0E1114;
+      --warn: #E7925F;
+      --focus: #82B1EF;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 28px rgba(0, 0, 0, .3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111417;
+    --surface: #191D21;
+    --raise: #21262B;
+    --ink: #E5E8E3;
+    --ink-2: #A2ACB3;
+    --ink-3: #6F7981;
+    --line: #2E353B;
+    --chip: #23292E;
+    --accent: #EE9C3E;
+    --accent-ink: #1C1206;
+    --stage-hi: #262C31;
+    --stage-lo: #0E1114;
+    --warn: #E7925F;
+    --focus: #82B1EF;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 28px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .app {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 12px;
+    padding-inline: 16px;
+    padding-block: 12px 16px;
+  }
+
+  /* ---------- top bar ---------- */
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .mark {
+    flex: none; width: 40px; height: 40px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: var(--ink); color: var(--surface);
+    font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: .02em;
+  }
+  .name { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1; letter-spacing: .01em; }
+  .tag { margin: 3px 0 0; color: var(--ink-2); font-size: 13.5px; }
+  .bar-actions { display: flex; align-items: center; gap: 10px; }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--surface); }
+  .lang-btn { border: 0; background: transparent; padding: 5px 12px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .lang-btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .cta {
+    border: 0; border-radius: 10px; padding: 10px 18px; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink);
+    font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: .02em;
+  }
+  .cta:hover { filter: brightness(1.05); }
+  .ghost { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
+
+  /* ---------- layout ---------- */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 12px; min-height: 0; }
+
+  .stage {
+    position: relative; min-height: 0; border-radius: 16px; overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 30%, var(--stage-hi), var(--stage-lo));
+    border: 1px solid var(--line);
+  }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+  .stage canvas:active { cursor: grabbing; }
+  .views {
+    position: absolute; top: 12px; left: 12px; right: 150px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .chip {
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer;
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+  }
+  .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+  .flap-btn {
+    position: absolute; top: 12px; right: 12px;
+    border: 1px solid var(--ink); border-radius: 999px; padding: 5px 14px; cursor: pointer;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    font-size: 13px; font-weight: 600;
+  }
+  .hint { position: absolute; right: 14px; bottom: 58px; margin: 0; font-size: 12px; color: var(--ink-3); pointer-events: none; }
+  .strip {
+    position: absolute; left: 12px; right: 12px; bottom: 12px;
+    display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline;
+    padding: 9px 14px; border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--line);
+  }
+  .strip div { display: flex; gap: 8px; align-items: baseline; }
+  .strip dt, .strip .k { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .strip .v { font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .overlay {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-family: var(--font-display); font-size: 20px; color: var(--ink-2); text-align: center; padding: 24px;
+  }
+
+  /* ---------- panel ---------- */
+  .panel {
+    min-height: 0; overflow: auto;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 18px 22px;
+    display: flex; flex-direction: column; gap: 22px;
+    box-shadow: var(--shadow);
+  }
+  .group { display: flex; flex-direction: column; gap: 10px; }
+  .preview-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .preview-slot { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 9px; background: var(--raise); }
+  .preview-slot h3 { margin: 0 0 4px; font: 600 13px var(--font-display); }
+  .preview-slot p { min-height: 1.5em; margin: 0 0 8px; color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+  .preview-slot .ghost { width: 100%; padding: 6px 8px; font-size: 12px; }
+  .preview-compare { overflow-x: auto; }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .preview-table th, .preview-table td { padding: 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+  .preview-table th { color: var(--ink-2); font-weight: 600; }
+  .preview-table tr[data-different="true"] td { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+  .preview-note { margin: 0; color: var(--ink-2); font-size: 12px; }
+  .label {
+    margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 14px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .label .aside { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink-2); font-weight: 400; }
+  .sub { display: flex; flex-direction: column; gap: 6px; }
+  .sublabel { font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
+  .seg-grid { display: grid; gap: 6px; }
+  .lengths { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .widths { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sign-styles { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+  .sign-styles .seg { font-size: 14px; line-height: 1.25; padding: 8px 6px; }
+  .models .seg { font-size: 18px; padding: 9px 6px 8px; }
+  .seg-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+  .seg {
+    border: 1px solid var(--line); background: var(--chip); border-radius: 9px;
+    padding: 8px 4px; cursor: pointer; text-align: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 16px; font-variant-numeric: tabular-nums;
+  }
+  .seg small { display: block; font-family: var(--font-body); font-weight: 500; font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .seg[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .seg[aria-pressed="true"] small { color: color-mix(in srgb, var(--surface) 75%, transparent); }
+  .seg:disabled { cursor: not-allowed; opacity: .42; text-decoration: line-through; text-decoration-thickness: 1px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch {
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, .18);
+    box-shadow: inset 0 -6px 10px rgba(0, 0, 0, .15), inset 0 4px 8px rgba(255, 255, 255, .35);
+  }
+  .swatch[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .note { margin: 0; font-size: 13px; color: var(--ink-2); }
+  .note strong { color: var(--warn); font-weight: 600; }
+  .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; font-weight: 500; }
+  .switch {
+    appearance: none; -webkit-appearance: none; flex: none;
+    width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer;
+    transition: background .15s ease;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--raise); box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: transform .15s ease;
+  }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(18px); }
+  .switch:disabled { opacity: .45; cursor: not-allowed; }
+  .switch-row:has(.switch:disabled) { color: var(--ink-2); cursor: not-allowed; }
+  .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-2); font-weight: 500; }
+  .field input, .field select, .field textarea {
+    border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; background: var(--raise); color: var(--ink); font-size: 15px; width: 100%;
+  }
+  .field input[type="text"]#opt-sign-text { font-family: var(--font-display); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .field input:disabled { opacity: .5; }
+  .summary { border-top: 1px solid var(--line); padding-top: 18px; }
+  .specs { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; }
+  .specs dt { color: var(--ink-2); font-size: 13px; }
+  .specs dd { margin: 0; text-align: right; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .fine { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+  .notes { border: 1px dashed var(--line); border-radius: 12px; padding: 10px 14px; }
+  .notes summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--ink-2); }
+  .notes ul { margin: 10px 0 2px; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); }
+
+  /* ---------- selection dialog ---------- */
+  dialog {
+    width: min(580px, calc(100% - 32px)); max-height: calc(100% - 32px);
+    border: 1px solid var(--line); border-radius: 16px; padding: 0; overflow: auto;
+    background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
+  }
+  dialog::backdrop { background: rgba(10, 14, 18, .45); }
+  .qform { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .qhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .qhead h2 { margin: 0; font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+  .icon-btn { border: 1px solid var(--line); background: var(--raise); width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 18px; line-height: 1; }
+  .qintro { margin: 0; color: var(--ink-2); }
+  .qgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .qgrid .wide { grid-column: 1 / -1; }
+  .qactions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .qresult { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .qresult h3 { margin: 0; font-family: var(--font-display); font-size: 19px; }
+  .qresult pre {
+    margin: 0; max-height: 40vh; overflow: auto; padding: 12px; border-radius: 10px;
+    background: var(--raise); border: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.5; white-space: pre;
+  }
+  .copied { color: var(--ink-2); font-size: 13px; }
+
+  @media (max-width: 920px) {
+    html, body { height: auto; }
+    .app { height: auto; grid-template-rows: auto auto; }
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .stage { height: 58vh; min-height: 340px; max-height: 620px; }
+    .panel { overflow: visible; }
+    .hint { display: none; }
+  }
+  @media (max-width: 520px) {
+    .name { font-size: 22px; }
+    .tag { font-size: 12.5px; }
+    .views { right: 12px; top: 54px; }
+    .flap-btn { top: 12px; left: 12px; right: auto; }
+    .lengths { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .widths { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .qgrid { grid-template-columns: 1fr; }
+    .strip { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .switch, .switch::after { transition: none; }
+  }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand">
+      <span class="mark" aria-hidden="true" id="brand-mark">QF</span>
+      <div>
+        <h1 class="name" id="brand-name">Qingfeng · CSQF-9</h1>
+        <p class="tag" id="brand-tag">Round-edge food trailer · build yours in 3D</p>
+      </div>
+    </div>
+    <div class="bar-actions">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" id="lang-en" aria-pressed="true">EN</button>
+        <button type="button" class="lang-btn" id="lang-zh" aria-pressed="false">中文</button>
+      </div>
+      <button type="button" class="cta" id="quote-open" data-i18n="quote">View my selection</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" id="stage" aria-label="3D view of the trailer">
+      <canvas id="view"></canvas>
+      <div class="views" id="views" role="group" aria-label="Camera views"></div>
+      <button type="button" class="flap-btn" id="flap-toggle">Close window</button>
+      <p class="hint" id="drag-hint">Drag to rotate · scroll or pinch to zoom</p>
+      <dl class="strip" id="strip"></dl>
+      <div class="overlay" id="overlay"><span data-i18n="loading">Loading the 3D view…</span></div>
+    </section>
+
+    <aside class="panel" id="panel" aria-label="Configuration">
+      <section class="group" id="group-model">
+        <h2 class="label"><span data-i18n="model">Model</span><span class="aside" id="model-aside"></span></h2>
+        <div class="seg-row models" id="opt-model"></div>
+        <p class="note" id="model-note"></p>
+      </section>
+
+      <section class="group" id="preview-candidates" aria-labelledby="preview-candidates-title">
+        <h2 class="label" id="preview-candidates-title" data-i18n="previewTitle">Compare previews</h2>
+        <p class="preview-note" data-i18n="previewBoundary">Temporary in-page previews for visual comparison; cleared on refresh.</p>
+        <div class="preview-slots">
+          <div class="preview-slot"><h3 data-i18n="previewSlotA">Preview A</h3><p id="preview-slot-a-status" aria-live="polite"></p><button type="button" class="ghost" id="preview-save-a" data-i18n="previewSaveA">Save current as A</button><button type="button" class="ghost" id="preview-restore-a" data-i18n="previewRestoreA" disabled>Restore A</button></div>
+          <div class="preview-slot"><h3 data-i18n="previewSlotB">Preview B</h3><p id="preview-slot-b-status" aria-live="polite"></p><button type="button" class="ghost" id="preview-save-b" data-i18n="previewSaveB">Save current as B</button><button type="button" class="ghost" id="preview-restore-b" data-i18n="previewRestoreB" disabled>Restore B</button></div>
+        </div>
+        <button type="button" class="ghost" id="preview-compare-button" data-i18n="previewCompare" disabled>Compare A and B</button>
+        <div class="preview-compare" id="preview-comparison" hidden aria-live="polite"></div>
+      </section>
+
+      <section class="group" id="group-length">
+        <h2 class="label"><span data-i18n="length">Body length</span><span class="aside" id="length-aside"></span></h2>
+        <div class="seg-grid lengths" id="opt-length"></div>
+        <p class="note" id="length-note"></p>
+      </section>
+
+      <section class="group">
+        <h2 class="label"><span data-i18n="finish">Finish</span><span class="aside" id="finish-name"></span></h2>
+        <div class="swatches" id="opt-finish"></div>
+        <div class="sub" id="sub-match-body">
+          <span class="sublabel" data-i18n="matchBody">Match body colour</span>
+          <label class="switch-row" for="opt-fender-paint"><span data-i18n="fenders">Fenders</span><input type="checkbox" class="switch" id="opt-fender-paint"></label>
+          <label class="switch-row" for="opt-gen-paint"><span data-i18n="generator">Generator enclosure</span><input type="checkbox" class="switch" id="opt-gen-paint"></label>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2 class="label"><span data-i18n="window">Service window</span></h2>
+        <div class="sub" id="sub-window-side">
+          <span class="sublabel" data-i18n="side">Side</span>
+          <div class="seg-row" id="opt-side"></div>
+        </div>
+        <div class="sub" id="sub-window-mode">
+          <span class="sublabel" data-i18n="windowMode">Width rule</span>
+          <div class="seg-row" id="opt-window-mode"></div>
+        </div>
+        <div class="sub" id="sub-window-width">
+          <span class="sublabel" data-i18n="width">Width (mm)</span>
+          <div class="seg-grid widths" id="opt-width"></div>
+        </div>
+        <p class="note" id="window-note"></p>
+      </section>
+
+      <section class="group" id="group-drawbar">
+        <h2 class="label"><span data-i18n="drawbar">Drawbar</span></h2>
+        <label class="switch-row" for="opt-generator"><span data-i18n="generator">Generator enclosure</span><input type="checkbox" class="switch" id="opt-generator"></label>
+        <div class="sub">
+          <span class="sublabel" data-i18n="lpg">LPG bottles</span>
+          <div class="seg-row" id="opt-lpg"></div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h2 class="label"><span data-i18n="roofSign">Roof sign</span></h2>
+        <label class="switch-row" for="opt-sign"><span data-i18n="roofSignShow">Show roof sign</span><input type="checkbox" class="switch" id="opt-sign"></label>
+        <div class="sub">
+          <span class="sublabel" data-i18n="signStyle">Style</span>
+          <div class="seg-grid sign-styles" id="opt-sign-style"></div>
+        </div>
+        <label class="field" for="opt-sign-text"><span data-i18n="signText">Sign text</span><input type="text" id="opt-sign-text" maxlength="18" autocomplete="off" spellcheck="false"></label>
+        <p class="note" id="sign-note"></p>
+      </section>
+
+      <section class="group summary">
+        <h2 class="label"><span data-i18n="summary">Your trailer</span></h2>
+        <dl class="specs" id="specs"></dl>
+        <p class="fine" data-i18n="disclaimer">Visuals are indicative. Final dimensions follow the approved drawings.</p>
+      </section>
+
+      <details class="notes" id="notes">
+        <summary data-i18n="notesTitle">About this 3D preview</summary>
+        <ul id="notes-list"></ul>
+      </details>
+    </aside>
+  </main>
+</div>
+
+<dialog id="quote-dialog" aria-labelledby="q-title">
+  <div class="qform">
+    <header class="qhead">
+      <h2 id="q-title" data-i18n="qTitle">My 3D selection</h2>
+      <button type="button" class="icon-btn" id="q-close" aria-label="Close">×</button>
+    </header>
+    <p class="qintro" data-i18n="qIntro"></p>
+    <section class="qresult" id="q-result">
+      <h3 data-i18n="qResultTitle">Selected options</h3>
+      <p class="fine" id="q-result-note" data-i18n="qResultNote"></p>
+      <pre id="q-json"></pre>
+      <div class="qactions">
+        <button type="button" class="ghost" id="q-copy" data-i18n="qCopy">Copy selection</button>
+        <span class="copied" id="q-copied" hidden data-i18n="qCopied">Copied</span>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<script>
+  // If the 3D module never boots (offline, blocked CDN), say so instead of loading forever.
+  setTimeout(function () {
+    if (window.__qfBooted) return;
+    var o = document.getElementById('overlay');
+    if (!o) return;
+    o.hidden = false;
+    o.textContent = (navigator.language || '').toLowerCase().indexOf('zh') === 0
+      ? '3D 视图加载失败，请检查网络后刷新。'
+      : 'The 3D view couldn’t load. Check your connection and reload.';
+  }, 12000);
+</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* Public display bundles contain only browser-display geometry and safe layout data. */
+const PARTS_BUNDLE = 'parts_public/qingfeng_public_bundle_V1.json';
+const FT4_BUNDLE = 'parts_public/ft6_public_bundle_V1.json';
+let PARTS = null;
+let qfFailed = false;
+async function loadParts(url = PARTS_BUNDLE) {
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`public parts bundle ${res.status}`);
+  const bundle = await res.json();
+  const loader = new GLTFLoader();
+  const out = { place: bundle.placement, skin: bundle.skin || null, shipping: bundle.shipping || null, byModel: {} };
+  for (const [key, part] of Object.entries(bundle.parts)) {
+    out.byModel[part.model_ref.split('@')[0]] = key;
+    const bytes = Uint8Array.from(atob(part.glb_base64), c => c.charCodeAt(0));
+    const gltf = await loader.parseAsync(bytes.buffer, '');
+    gltf.scene.traverse(o => {
+      if (o.isMesh) {
+        o.castShadow = true;
+        o.receiveShadow = true;
+        o.userData.shared = true;
+      }
+    });
+    out[key] = gltf.scene;
+  }
+  return out;
+}
+
+// Public preview coordinates: body length, height above ground and cross-body position in millimetres.
+function partInstance(key, x, yUp, zWeb, rotDeg) {
+  if (!PARTS[key]) { // an older bundle without this part: leave it out rather than fail the whole build
+    console.warn(`parts bundle has no "${key}"`);
+    return new THREE.Group();
+  }
+  const o = PARTS[key].clone(true);
+  o.position.set(x / 1000, yUp / 1000, zWeb / 1000);
+  o.rotation.y = THREE.MathUtils.degToRad(rotDeg);
+  return o;
+}
+
+/* FT-6 public browser preview. */
+let FT4 = null, ft4Loading = null;
+function ensureFT4() {
+  if (!ft4Loading) {
+    ft4Loading = loadParts(FT4_BUNDLE).then(p => {
+      const L = p.place.body.length_mm;
+      const c = p.place.tow.coupling;
+      const cb = new THREE.Box3().setFromObject(p[p.byModel[c.part]]);
+      const bb = new THREE.Box3().setFromObject(p[p.byModel[p.place.body.model]]);
+      p.frontExtent = Math.round(-(c.x_mm + cb.min.x * 1000));
+      p.rearExtent = Math.round(bb.max.x * 1000 - L);
+      FT4 = p;
+      return p;
+    }).catch(err => {
+      ft4Loading = null;
+      throw err;
+    });
+  }
+  return ft4Loading;
+}
+// Library coordinates (mm: x from the front face, y across with -y = vehicle left, z up) -> page (x, z, -y), metres
+function ft4Instance(key, x, y, z, rotZ = 0, rotX = 0) {
+  if (!key || !FT4[key]) { console.warn(`FT-4 bundle has no "${key}"`); return new THREE.Group(); }
+  const o = FT4[key].clone(true);
+  o.position.set(x / 1000, z / 1000, -y / 1000);
+  o.rotation.set(THREE.MathUtils.degToRad(rotX), THREE.MathUtils.degToRad(rotZ), 0, 'YXZ');
+  return o;
+}
+// Values used until the FT-4 bundle arrives; the assembly file replaces them once loaded
+const FT4_DEFAULT = { L: 5000, W: 2200, H: 2200, tube: 390, floor: 510, roof: 2590, bottom: 120, roofT: 50, front: 1884, rear: 290, support: 250 };
+const MODEL_FINISH = { csqf9: 'red', ft4: 'white' };   // each model keeps its own colour; the FT-4 source trailer is white
+
+/* =====================================================================
+   Browser preview geometry settings (mm).
+   ===================================================================== */
+const RULE = Object.freeze({
+  W: 2100, H: 2300, R: 500, WT: 50, BOTTOM: 120, Z0: 450,
+  // Visual tyre dimensions for the browser preview
+  TIRE_D: 650, TIRE_W: 185, ROAD_W: 2160,
+  ARCH_CLEAR: 90, ARCH_R: 140, ARCH_SLOPE: 0.45, ARCH_END: 90,
+  AXLE_SPACING: 700, GROUP_RATIO: 0.60, SINGLE_AXLE_MAX: 3500,
+  // Window clearances used by the browser preview
+  SILL: 850, WIN_TOP_MARGIN: 80, DOOR_TOP_MARGIN: 50, EDGE_MARGIN: 150, FRAME: 30, DOOR_W: 800,
+  TONGUE: 2050, COUPLING_H: 440, SHIP_SUPPORT: 250,
+});
+// Display-only accessory: roof lightbox size above the roof line (mm)
+const SIGN = Object.freeze({ GAP: 60 });
+// Roof sign styles are appearance references: the system has no roof-sign product objects yet (non-illuminated
+// letters and plates sit in ACC-L2-08 without models; illuminated signs are routed to EQ / MOD-E).
+const SIGN_STYLES = [
+  { id: 'box2', lit: true, faces: 2, H: 360, D: 80 },                           // lightbox, both faces lit
+  { id: 'box1', lit: true, faces: 1, H: 360, D: 120 },                          // lightbox, lit face to the window side
+  { id: 'litLetters', lit: true, faces: 1, H: 420, D: 60, letters: true },      // channel letters on a rail, lit
+  { id: 'metalLetters', lit: false, faces: 1, H: 420, D: 50, letters: true },   // metal letters on a rail, no light
+  { id: 'panel', lit: false, faces: 2, H: 400, D: 30 },                         // printed flat panel, no light
+];
+const signStyle = () => SIGN_STYLES.find(st => st.id === state.signStyle) || SIGN_STYLES[0];
+// Mounting rule: the supports stand on the flat part of the roof on the service-window side, their feet at least
+// EDGE_CLEAR inside the line where the roof curve starts. Qingfeng R500 puts the sign 460 mm off the centre line;
+// a flat-roofed body has a wider flat zone, so the same rule moves the sign nearer the side. Windows on both sides → centred.
+const SIGN_MOUNT = Object.freeze({ EDGE_CLEAR: 50, FOOT: 40 });
+function signOffset(side) { // mm across the body, + = vehicle left (page +z)
+  if (side === 'both') return 0;
+  return (side === 'left' ? 1 : -1) * (RULE.W / 2 - RULE.R - SIGN_MOUNT.EDGE_CLEAR - SIGN_MOUNT.FOOT);
+}
+const LENGTHS = [3000, 3500, 4000, 4500, 5000, 5500];
+const WIDTHS = [1500, 2000, 2500, 3000, 3500];
+const FINISHES = [
+  { id: 'red', hex: '#B3261E' },
+  { id: 'black', hex: '#15171A' },
+  { id: 'sky', hex: '#9CC3D9' },
+  { id: 'cream', hex: '#EFE8D8' },
+  { id: 'sage', hex: '#9CB29A' },
+  { id: 'mustard', hex: '#D2A33A' },
+  { id: 'white', hex: '#EEF0EC', models: ['ft4'] },                // FT-4 source trailer colour; CSQF-9 keeps its original seven
+  { id: 'mirror', hex: '#D8DCDF', metal: true, models: ['csqf9'] }, // on the composite-panel FT-6 stainless is a base-package change, not a colour
+];
+
+const state = {
+  model: 'csqf9', length: 5000, finish: 'red', side: 'left', windowMode: 'auto', winWidth: 3000, winRequestedWidth: 3000, winWidthExplicit: false,
+  flapOpen: true, generator: true, lpg: 2, sign: true, signText: 'STREET KITCHEN', signStyle: 'box2',
+  fenderPaint: false, generatorPaint: false, // stainless unless the customer asks for body colour
+};
+const previewSlots = { A: null, B: null };
+let previewComparisonOpen = false;
+let activeView = 'front';
+if (/^#ft[46]$/i.test(location.hash)) { state.model = 'ft4'; state.finish = MODEL_FINISH.ft4; }   // deep link to the second model
+
+/* =====================================================================
+   Language
+   ===================================================================== */
+const I18N = {
+  en: {
+    previewTitle: 'Compare previews', previewBoundary: 'Temporary in-page previews for visual comparison; cleared on refresh.',
+    previewSlotA: 'Preview A', previewSlotB: 'Preview B', previewSaveA: 'Save current as A', previewSaveB: 'Save current as B',
+    previewRestoreA: 'Restore A', previewRestoreB: 'Restore B', previewCompare: 'Compare A and B', previewEmpty: 'Empty', previewStored: 'Saved in this page only',
+    previewNeedBoth: 'Save a preview in both slots before comparing.', previewNoDifferences: 'No differences in the fields shown.', previewDiffNote: 'Highlighted rows differ.',
+    previewField: 'Field', previewColA: 'A', previewColB: 'B', previewModel: 'Model', previewLength: 'Body length', previewFinish: 'Finish',
+    previewWindowSide: 'Service window side', previewWindowMode: 'Width rule', previewWindowWidth: 'Service window width', previewDefaultUnselected: 'default preview · not selected', previewCustomerRequested: 'customer request', previewWorkingWidth: 'Working width',
+    previewGenerator: 'Generator enclosure', previewLpg: 'LPG bottles', previewRoofSign: 'Roof sign', previewFenders: 'Fenders', previewGeneratorFinish: 'Generator finish',
+    previewFixed: 'Fixed for this model', previewNotUsed: 'Not used for this model', previewOn: 'On', previewOff: 'Off',
+    name: 'Qingfeng · CSQF-9', tagline: 'Round-edge food trailer · build yours in 3D', quote: 'View my selection',
+    model: 'Model', modelQFsub: 'Qingfeng · round edge', modelFTsub: 'Square · tandem',
+    nameFT: 'Square trailer · FT-6', taglineFT: 'Square food trailer, tandem axle · explore it in 3D', loadingFT: 'Loading the FT-6 model…',
+    modelNoteQF: 'Choose the body length, service windows, drawbar extras and roof sign.',
+    modelNoteFT: 'Fixed size 5.0 × 2.2 × 2.2 m with two top-hinged service windows on the left and one at the front.',
+    windowNoteFT: 'Two windows on the left, {w} × {h} mm each, and one at the front, {fw} × {h} mm; counter {c} mm above the ground. The layout is fixed on this model.',
+    specWindowFT: 'Left 2 × {w} × {h} · front {fw} × {h} mm', specBodyFT: 'Body build', bodyFTVal: 'Composite panels · chequer-plate skirt', tyreFT: '185/70 R14',
+    signNoteFlat: 'Sits on the service-window side: the supports stand on the flat roof, at least 50 mm in from the roof edge ({off} mm from the centre line). Styles are appearance references; model and supports to be confirmed.',
+    f_white: 'Gloss white',
+    notesFT: [
+      'Interactive 3D preview of the 5.0 × 2.2 × 2.2 m FT-6 exterior.',
+      'The serving-window layout is fixed in this preview: two windows on the left and one at the front.',
+      'Tyres, accessories, colours and signs are visual planning references.',
+      'No prices are shown. Final dimensions and specifications are confirmed before production.',
+    ],
+    loading: 'Loading the 3D view…', noWebgl: 'This browser can’t show the 3D view. Try a recent Chrome, Safari or Edge.',
+    partsFailed: 'The 3D parts couldn’t load. Check your connection and reload.',
+    viewFront: 'Front ¾', viewRear: 'Rear ¾', viewSide: 'Side', viewTop: 'Top', viewInside: 'Inside',
+    openWindow: 'Open window', closeWindow: 'Close window', dragHint: 'Drag to rotate · scroll or pinch to zoom',
+    length: 'Body length', axle1: '1 axle', axle2: '2 axles', lengthNote: '{axles} (visual assumption) · {overall} mm long with the drawbar',
+    finish: 'Finish', f_red: 'Signal red', f_black: 'Gloss black', f_sky: 'Sky blue', f_cream: 'Cream white', f_sage: 'Sage green', f_mustard: 'Mustard', f_mirror: 'Mirror stainless',
+    window: 'Service window', side: 'Side', sideLeft: 'Left', sideRight: 'Right', sideBoth: 'Both', windowMode: 'Width rule', widthAuto: 'Auto fit', widthLocked: 'Lock request', width: 'Width (mm)',
+    windowNote: 'Opening {h} mm high, counter {c} mm above the ground. Up to {max} mm wide on this length.',
+    windowUndecided: 'This default is only a preview. Select a width or lock the request to confirm it.',
+    windowAutoConflict: 'Auto fit: requested {requested} mm does not fit. Preview uses {w} mm; no width decision is recorded.',
+    windowLockedConflict: 'Locked request: {requested} mm is retained. Preview uses {w} mm on the {len} m body; review the requested width. It restores automatically when the body is long enough.',
+    widthDisabled: 'Needs a longer body',
+    drawbar: 'Drawbar', generator: 'Generator enclosure', lpg: 'LPG bottles',
+    matchBody: 'Match body colour', fenders: 'Fenders', specParts: 'Fenders · generator box', partPaint: 'Body colour', partSteel: 'Stainless',
+    roofSign: 'Roof sign', roofSignShow: 'Show roof sign', signText: 'Sign text', signStyle: 'Style',
+    ss_box2: 'Lightbox, 2 faces', ss_box1: 'Lightbox, 1 face', ss_litLetters: 'Letters', ss_metalLetters: 'Metal letters', ss_panel: 'Flat panel', litYes: 'lit', litNo: 'no light',
+    signNote: 'Sits on the service-window side: the supports stand on the flat part of the roof, at least 50 mm in from where the curve starts ({off} mm from the centre line). Styles are appearance references; model and supports to be confirmed.',
+    signNoteBoth: 'Service windows on both sides, so the sign sits in the middle and shows both faces. Styles are appearance references; model and supports to be confirmed.',
+    summary: 'Your trailer', specBody: 'Body (L × W × H)', specOverall: 'Length with drawbar', specRoadH: 'Height on wheels',
+    specInterior: 'Interior height', specFloor: 'Floor height', specAxles: 'Axles & tyres', specWindow: 'Service window',
+    specSkin: 'Body skin', skinVal: '{n} riveted steel panels · {k} per side',
+    specDoor: 'Rear door', specShip: 'Shipping', shipVal: '{c} disassembly estimate ≈{h} mm · {s}', shipS_REVIEW: 'over the {line} mm control line, review required (door {door} mm)', shipS_FAIL: 'above the {c} door height {door} mm, won’t fit as is', shipS_PASS: 'within the {line} mm control line', shipS_NONE: 'reference loading', shipShort_REVIEW: 'review', shipShort_FAIL: 'won’t fit', shipShort_PASS: 'fits', shipShort_NONE: 'pending', doorVal: '{w} × {h} mm · pull-out step',
+    withSign: '{h} with roof sign',
+    disclaimer: 'Visuals are indicative. Final dimensions follow the approved drawings.',
+    stripBody: 'Body', stripHeight: 'On wheels', stripAxles: 'Axles', stripShip: 'Ships', shipStripVal: '{c} · est. {h} mm · {s}', axleVisual: 'visual only',
+    notesTitle: 'About this 3D preview',
+    notes: [
+      'Explore the trailer exterior, service-window options, colours and selected accessories in 3D.',
+      'Dimensions shown on this page are planning references, not approved production drawings.',
+      'Some accessory shapes and placements are simplified for a clear browser preview.',
+      'No prices are shown. Final dimensions and specifications are confirmed before production.',
+    ],
+    qTitle: 'My 3D selection', qIntro: 'Copy this visual planning summary when contacting TYZON.',
+    qResultTitle: 'Selected options',
+    qResultNote: 'Visual reference only. Final dimensions, equipment placement and specifications are confirmed before production.',
+    qCopy: 'Copy selection', qCopied: 'Copied',
+  },
+  zh: {
+    previewTitle: '预览方案比较', previewBoundary: '仅供当前页面内进行外观方案比较；刷新后清空。',
+    previewSlotA: '预览 A', previewSlotB: '预览 B', previewSaveA: '保存当前为 A', previewSaveB: '保存当前为 B',
+    previewRestoreA: '恢复 A', previewRestoreB: '恢复 B', previewCompare: '比较 A 与 B', previewEmpty: '空', previewStored: '仅保存在当前页面',
+    previewNeedBoth: '请先在 A、B 两槽各保存一个预览。', previewNoDifferences: '所列字段没有差异。', previewDiffNote: '有差异的行已标出。',
+    previewField: '字段', previewColA: 'A', previewColB: 'B', previewModel: '车型', previewLength: '车长', previewFinish: '车身颜色／表面',
+    previewWindowSide: '服务窗位置', previewWindowMode: '窗宽规则', previewWindowWidth: '服务窗宽度', previewDefaultUnselected: '默认预览 · 未选择', previewCustomerRequested: '客户原要求', previewWorkingWidth: '工作宽度预览',
+    previewGenerator: '发电机箱', previewLpg: '液化气瓶', previewRoofSign: '车顶广告牌', previewFenders: '轮眉表面', previewGeneratorFinish: '发电机箱表面',
+    previewFixed: '本车型固定', previewNotUsed: '本车型不适用', previewOn: '开启', previewOff: '关闭',
+    name: '清风系列 · CSQF-9', tagline: '圆角餐车 · 3D 自选配置', quote: '查看我的选择',
+    model: '车型', modelQFsub: '清风 · 圆角', modelFTsub: '方形 · 双轴',
+    nameFT: '方形餐车 · FT-6', taglineFT: '方形双轴餐车 · 3D 查看与选配', loadingFT: '正在加载 FT-6 模型…',
+    modelNoteQF: '车长、服务窗、牵引端配件和车顶广告牌都可以自己选。',
+    modelNoteFT: '固定尺寸 5.0 × 2.2 × 2.2 米：左侧两扇上翻服务窗，车头一扇。',
+    windowNoteFT: '左侧两扇，各 {w} × {h} mm；车头一扇 {fw} × {h} mm；台面离地 {c} mm。本款布置固定。',
+    specWindowFT: '左侧 2 × {w} × {h} · 车头 {fw} × {h} mm', specBodyFT: '车身', bodyFTVal: '复合板 · 花纹板裙边', tyreFT: '185/70 R14',
+    signNoteFlat: '装在服务窗一侧：支撑脚落在平车顶上，离车顶边缘至少 50 mm（距中线 {off} mm）。款式为外观示意，具体型号和支撑方式待定。',
+    f_white: '亮白',
+    notesFT: [
+      'FT-6 外观 3D 互动预览，车身参考尺寸为 5.0 × 2.2 × 2.2 米。',
+      '本预览中的服务窗布局固定：左侧两扇，车头一扇。',
+      '轮胎、配件、颜色和广告牌用于外观与方案沟通。',
+      '页面不显示价格；最终尺寸和规格在生产前确认。',
+    ],
+    loading: '正在加载 3D 视图…', noWebgl: '当前浏览器无法显示 3D，请换用新版 Chrome、Safari 或 Edge。',
+    partsFailed: '3D 零件加载失败，请检查网络后刷新。',
+    viewFront: '前侧', viewRear: '后侧', viewSide: '侧面', viewTop: '俯视', viewInside: '车内',
+    openWindow: '打开服务窗', closeWindow: '关闭服务窗', dragHint: '拖动旋转 · 滚轮或双指缩放',
+    length: '车长', axle1: '单轴', axle2: '双轴', lengthNote: '{axles}（外观假设）· 含牵引杆总长 {overall} mm',
+    finish: '车身颜色', f_red: '信号红', f_black: '亮黑', f_sky: '天空蓝', f_cream: '奶白', f_sage: '灰绿', f_mustard: '芥末黄', f_mirror: '镜面不锈钢',
+    window: '服务窗', side: '位置', sideLeft: '左侧', sideRight: '右侧', sideBoth: '两侧', windowMode: '窗宽规则', widthAuto: '自动适配', widthLocked: '锁定原要求', width: '宽度（mm）',
+    windowNote: '窗口高 {h} mm，台面离地 {c} mm。该车长最宽 {max} mm。',
+    windowUndecided: '当前窗宽只是默认预览值；点选窗宽或锁定原要求后，才作为明确选择提交。',
+    windowAutoConflict: '自动适配：原要求 {requested} mm 超出当前车身可容纳范围，预览按 {w} mm 显示，本次不记录窗宽决定。',
+    windowLockedConflict: '已保留锁定原要求 {requested} mm。当前 {len} 米车身的预览按 {w} mm 显示；锁定值需复核。车身加长到可容纳时会自动恢复原要求。',
+    widthDisabled: '需要更长的车身',
+    drawbar: '牵引端', generator: '发电机箱', lpg: '液化气瓶',
+    matchBody: '跟随车身颜色', fenders: '轮眉', specParts: '轮眉 · 发电机箱', partPaint: '车身同色', partSteel: '不锈钢',
+    roofSign: '车顶广告牌', roofSignShow: '显示广告牌', signText: '广告牌文字', signStyle: '款式',
+    ss_box2: '双面灯箱', ss_box1: '单面灯箱', ss_litLetters: '发光立体字', ss_metalLetters: '金属立体字', ss_panel: '平板招牌', litYes: '发光', litNo: '不发光',
+    signNote: '装在服务窗一侧：支撑脚落在车顶平面区，离起弧线至少 50 mm（距中线 {off} mm）。款式为外观示意，具体型号和支撑方式待定。',
+    signNoteBoth: '两侧都有服务窗，广告牌居中，两面都显示。款式为外观示意，具体型号和支撑方式待定。',
+    summary: '你的餐车', specBody: '车身（长 × 宽 × 高）', specOverall: '含牵引杆总长', specRoadH: '带轮总高',
+    specInterior: '车内净高', specFloor: '地板离地', specAxles: '车轴与轮胎', specWindow: '服务窗',
+    specSkin: '车身蒙皮', skinVal: '铆接钢板 {n} 块 · 每侧侧板 {k} 块',
+    specDoor: '车尾门', specShip: '运输', shipVal: '{c} 拆装估算约 {h} mm · {s}', shipS_REVIEW: '超过 {line} mm 控制线，待复核（柜门 {door} mm）', shipS_FAIL: '超过 {c} 柜门 {door} mm，不能直入', shipS_PASS: '在 {line} mm 控制线内', shipS_NONE: '参考加载中', shipShort_REVIEW: '待复核', shipShort_FAIL: '不能直入', shipShort_PASS: '符合', shipShort_NONE: '待核', doorVal: '{w} × {h} mm · 抽拉踏步',
+    withSign: '含广告牌 {h}',
+    disclaimer: '外观为示意，最终尺寸以批准图纸为准。',
+    stripBody: '车身', stripHeight: '带轮高', stripAxles: '车轴', stripShip: '装运', shipStripVal: '{c} · 估算 {h} mm · {s}', axleVisual: '仅供外观参考',
+    notesTitle: '关于本 3D 预览',
+    notes: [
+      '可在 3D 中查看餐车外观、服务窗、颜色和部分外部配件。',
+      '页面尺寸用于前期方案沟通，不是已批准的生产图纸。',
+      '为保证网页浏览清晰流畅，部分配件外形和位置采用简化展示。',
+      '页面不显示价格；最终尺寸和规格在生产前确认。',
+    ],
+    qTitle: '我的 3D 选择', qIntro: '联系 TYZON 时可复制这份外观选配摘要。',
+    qResultTitle: '已选项目',
+    qResultNote: '仅供外观与方案沟通；最终尺寸、设备布置和规格在生产前确认。',
+    qCopy: '复制选择', qCopied: '已复制',
+  },
+};
+let lang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+try { const saved = localStorage.getItem('tyzon-public-configurator-lang'); if (saved === 'en' || saved === 'zh') lang = saved; } catch (e) { /* storage unavailable */ }
+const t = (key, vars) => {
+  let s = I18N[lang][key] ?? I18N.en[key] ?? key;
+  if (vars && typeof s === 'string') for (const k of Object.keys(vars)) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+};
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const mStr = mm => (mm / 1000).toFixed(1);
+
+/* =====================================================================
+   Derived geometry from the rules
+   ===================================================================== */
+function largestWidthFor(L) {
+  const max = L - 2 * RULE.R - 2 * RULE.EDGE_MARGIN;
+  const ok = WIDTHS.filter(w => w <= max);
+  return ok.length ? ok[ok.length - 1] : WIDTHS[0];
+}
+function derive(s) { return s.model === 'ft4' ? deriveFT4() : deriveQF(s); }
+function deriveFT4() {
+  const A = FT4 && FT4.place, B = A ? A.body : null, d = FT4_DEFAULT;
+  const op = id => (A ? A.openings.find(o => o.id === id) : null);
+  const sw = op('ft4_side_window_front'), fw = op('ft4_front_window'), door = op('ft4_rear_door');
+  const L = B ? B.length_mm : d.L, H = B ? B.height_mm : d.H, front = FT4 ? FT4.frontExtent : d.front;
+  return {
+    model: 'ft4', L, W: B ? B.width_mm : d.W, H, ZF: B ? B.floor_above_ground_mm : d.floor, roadH: B ? B.roof_above_ground_mm : d.roof,
+    tube: B ? B.tube_bottom_above_ground_mm : d.tube, interiorH: H - (B ? B.bottom_structure_mm : d.bottom) - (B ? B.roof_mm : d.roofT),
+    sides: [1], winW: sw ? sw.width_mm : 1500, winH: sw ? sw.height_mm : 1000, sill: sw ? sw.center_mm.z - sw.height_mm / 2 : 1360,
+    insideX: sw ? sw.center_mm.x : 1500, frontWinW: fw ? fw.width_mm : 1300, doorW: door ? door.width_mm : 800, doorH: door ? door.height_mm : 1900,
+    axleCount: A ? A.running_gear.axle_centers_x_mm.length : 2,
+    frontExt: front, rearExt: FT4 ? FT4.rearExtent : d.rear, overallLen: L + front,
+    shipH: H + (A ? A.shipping.support_estimate_mm : d.support),
+  };
+}
+function deriveQF(s) {
+  const L = s.length;
+  const ZF = RULE.Z0 + RULE.BOTTOM;
+  const FLAT_TOP = RULE.Z0 + RULE.H - RULE.R;
+  const winMax = L - 2 * RULE.R - 2 * RULE.EDGE_MARGIN;
+  const winW = Math.min(s.winWidth, largestWidthFor(L));
+  const y1 = ZF + RULE.SILL;
+  const y2 = FLAT_TOP - RULE.WIN_TOP_MARGIN;
+  const doorH = Math.floor((FLAT_TOP - RULE.DOOR_TOP_MARGIN - ZF) / 10) * 10;
+  const axleCount = L <= RULE.SINGLE_AXLE_MAX ? 1 : 2;
+  const groupX = L * RULE.GROUP_RATIO;
+  const axles = axleCount === 1 ? [groupX] : [groupX - RULE.AXLE_SPACING / 2, groupX + RULE.AXLE_SPACING / 2];
+  const archLen = RULE.TIRE_D + (axleCount - 1) * RULE.AXLE_SPACING + 2 * RULE.ARCH_END;
+  const archH = Math.round(RULE.TIRE_D - RULE.Z0 + RULE.ARCH_CLEAR);
+  const archR = Math.min(RULE.ARCH_R, archH + 50);
+  const archFlare = RULE.ARCH_SLOPE * Math.max(archH - archR, 0);
+  const archX1 = groupX - archLen / 2 - archFlare, archX2 = groupX + archLen / 2 + archFlare;
+  const sides = s.side === 'both' ? [1, -1] : [s.side === 'left' ? 1 : -1];
+  const windows = sides.map(side => ({ side, x1: L / 2 - winW / 2, x2: L / 2 + winW / 2, y1, y2 }));
+  return {
+    L, ZF, FLAT_TOP, winMax, winW, y1, y2, doorW: RULE.DOOR_W, doorH, axleCount, groupX, axles,
+    archLen, archH, archR, archFlare, archX1, archX2, sides, windows,
+    overallLen: L + RULE.TONGUE, roadH: RULE.Z0 + RULE.H, interiorH: RULE.H - RULE.BOTTOM - RULE.WT,
+    shipH: RULE.H + RULE.SHIP_SUPPORT,
+  };
+}
+
+// Shipping height check. Container sizes and control lines come from the parts bundle, which packs
+// 装运柜型与控制线参考.js (maintained next to the 车型尺寸与装运方案联动测算 page). The page itself only assumes
+// the plan and the support height (RULE.SHIP_SUPPORT); same verdicts as that page: over the control line = review,
+// over the door or internal height = won't fit.
+const SHIP_PLAN_ID = '40HQ_DISASSEMBLED';
+function shippingCheck(D) {
+  const src = D.model === 'ft4' ? FT4 : PARTS;
+  const ref = src && src.shipping;
+  const plan = ref && ref.plans.find(p => p.plan_id === SHIP_PLAN_ID);
+  if (!plan) return null;
+  const c = ref.containers[plan.container], line = ref.schemes[plan.scheme].control_line_mm;
+  const status = D.shipH > Math.min(c.door_mm.height, c.internal_mm.height) ? 'FAIL' : D.shipH > line ? 'REVIEW' : 'PASS';
+  return { plan, container: plan.container, line, door: c.door_mm.height, status };
+}
+
+/* =====================================================================
+   Renderer, scene, camera
+   ===================================================================== */
+const stageEl = document.getElementById('stage');
+const canvas = document.getElementById('view');
+const overlay = document.getElementById('overlay');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let renderer = null;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+} catch (e) {
+  renderer = null;
+}
+
+const m = v => v / 1000;
+const V3 = (x, y, z) => new THREE.Vector3(m(x), m(y), m(z));
+
+const MAT = {
+  paint: new THREE.MeshPhysicalMaterial({ color: '#B3261E', roughness: 0.32, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.06, side: THREE.DoubleSide }),
+  lining: new THREE.MeshStandardMaterial({ color: '#c9ced2', metalness: 0.85, roughness: 0.34, side: THREE.DoubleSide }),
+  alu: new THREE.MeshStandardMaterial({ color: '#e2e5e7', metalness: 1, roughness: 0.28, side: THREE.DoubleSide }),
+  galv: new THREE.MeshStandardMaterial({ color: '#a9afb3', metalness: 0.75, roughness: 0.55 }),
+  dark: new THREE.MeshStandardMaterial({ color: '#2b2e31', metalness: 0.4, roughness: 0.55, side: THREE.DoubleSide }),
+  black: new THREE.MeshStandardMaterial({ color: '#141516', metalness: 0.1, roughness: 0.6 }),
+  rubber: new THREE.MeshStandardMaterial({ color: '#1b1c1d', metalness: 0, roughness: 0.92, side: THREE.DoubleSide }),
+  rim: new THREE.MeshStandardMaterial({ color: '#f0f0ec', metalness: 0.25, roughness: 0.35 }),
+  rimSilver: new THREE.MeshStandardMaterial({ color: '#b9bec2', metalness: 0.9, roughness: 0.3, name: '银色钢圈' }),
+  chequer: new THREE.MeshStandardMaterial({ color: '#b9bfc3', metalness: 0.85, roughness: 0.45, side: THREE.DoubleSide }),
+  well: new THREE.MeshStandardMaterial({ color: '#1f2124', metalness: 0.2, roughness: 0.85, side: THREE.DoubleSide }),
+  red: new THREE.MeshStandardMaterial({ color: '#b81616', emissive: '#ff2414', emissiveIntensity: 0.35, roughness: 0.2 }),
+  amber: new THREE.MeshStandardMaterial({ color: '#e08a12', emissive: '#ff9414', emissiveIntensity: 0.35, roughness: 0.2 }),
+  clear: new THREE.MeshStandardMaterial({ color: '#e9ecef', emissive: '#ffffff', emissiveIntensity: 0.15, roughness: 0.15 }),
+  lpg: new THREE.MeshStandardMaterial({ color: '#8f99a3', metalness: 0.3, roughness: 0.45, side: THREE.DoubleSide }),
+  plate: new THREE.MeshStandardMaterial({ color: '#f2c318', roughness: 0.4 }),
+  blueIec: new THREE.MeshStandardMaterial({ color: '#1f55b8', roughness: 0.45 }),
+  led: new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#fff3df', emissiveIntensity: 2.4 }),
+  worktop: new THREE.MeshStandardMaterial({ color: '#d6dadd', metalness: 0.9, roughness: 0.24 }),
+  cabinet: new THREE.MeshStandardMaterial({ color: '#bcc2c6', metalness: 0.85, roughness: 0.38 }),
+  bowl: new THREE.MeshStandardMaterial({ color: '#7f868b', metalness: 1, roughness: 0.2 }),
+  signFrame: new THREE.MeshStandardMaterial({ color: '#17191c', metalness: 0.3, roughness: 0.5 }),
+};
+
+let scene, camera, controls, keyLight, contact;
+let trailer = null;
+let flaps = [];
+let struts = [];
+let ft4FoldAway = [];
+let flapAmount = state.flapOpen ? 1 : 0;
+let flapAnim = null;
+let tween = null;
+let dirty = true;
+const requestRender = () => { dirty = true; };
+
+if (renderer) {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x000000, 0);
+
+  scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  // Passing the renderer gives the room its physically-based light level (r164)
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  scene.environmentIntensity = 0.8;
+  pmrem.dispose();
+
+  camera = new THREE.PerspectiveCamera(30, 1, 0.1, 120);
+  controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.enablePan = false;
+  controls.minDistance = 3.0;
+  controls.maxDistance = 32;
+  controls.maxPolarAngle = Math.PI * 0.495;
+  controls.addEventListener('change', requestRender);
+
+  keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  keyLight.position.set(-5, 9, 7);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  Object.assign(keyLight.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 30 });
+  keyLight.shadow.bias = -0.0004;
+  keyLight.shadow.normalBias = 0.02;
+  scene.add(keyLight);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f8c, 0.2));
+
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.2 }));
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const cc = document.createElement('canvas');
+  cc.width = cc.height = 256;
+  const g2 = cc.getContext('2d');
+  const grad = g2.createRadialGradient(128, 128, 10, 128, 128, 128);
+  grad.addColorStop(0, 'rgba(0,0,0,0.42)');
+  grad.addColorStop(0.55, 'rgba(0,0,0,0.18)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  g2.fillStyle = grad;
+  g2.fillRect(0, 0, 256, 256);
+  const ctex = new THREE.CanvasTexture(cc);
+  contact = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: ctex, transparent: true, depthWrite: false }));
+  contact.rotation.x = -Math.PI / 2;
+  contact.position.y = 0.002;
+  scene.add(contact);
+}
+
+/* =====================================================================
+   Geometry helpers (inputs in mm, meshes in metres)
+   ===================================================================== */
+function mesh(geo, mat, cast = true) {
+  const o = new THREE.Mesh(geo, mat);
+  o.castShadow = cast;
+  o.receiveShadow = true;
+  return o;
+}
+function box(x1, x2, y1, y2, z1, z2, mat, cast = true) {
+  const g = new THREE.BoxGeometry(m(Math.abs(x2 - x1)), m(Math.abs(y2 - y1)), m(Math.abs(z2 - z1)));
+  const o = mesh(g, mat, cast);
+  o.position.set(m((x1 + x2) / 2), m((y1 + y2) / 2), m((z1 + z2) / 2));
+  return o;
+}
+function cyl(r, len, axis, cx, cy, cz, mat, seg = 32) {
+  const g = new THREE.CylinderGeometry(m(r), m(r), m(len), seg);
+  if (axis === 'x') g.rotateZ(Math.PI / 2);
+  else if (axis === 'z') g.rotateX(Math.PI / 2);
+  const o = mesh(g, mat);
+  o.position.set(m(cx), m(cy), m(cz));
+  return o;
+}
+const UP = new THREE.Vector3(0, 1, 0);
+const XAX = new THREE.Vector3(1, 0, 0);
+function rod(p1, p2, r, mat, seg = 12) {
+  const a = V3(...p1), b = V3(...p2);
+  const d = b.clone().sub(a);
+  const o = mesh(new THREE.CylinderGeometry(m(r), m(r), d.length(), seg), mat);
+  o.position.copy(a).add(b).multiplyScalar(0.5);
+  o.quaternion.setFromUnitVectors(UP, d.normalize());
+  return o;
+}
+function beam(p1, p2, w, h, mat) {
+  const a = V3(...p1), b = V3(...p2);
+  const d = b.clone().sub(a);
+  const o = mesh(new THREE.BoxGeometry(d.length(), m(h), m(w)), mat);
+  o.position.copy(a).add(b).multiplyScalar(0.5);
+  o.quaternion.setFromUnitVectors(XAX, d.normalize());
+  return o;
+}
+function paramSurface(fn, nu, nv, mat, cast = true, nfn = null) {
+  const pos = [];
+  const idx = [];
+  for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) { const p = fn(i / nu, j / nv); pos.push(p[0], p[1], p[2]); }
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+    const a = j * (nu + 1) + i, b = a + 1, c = a + nu + 1, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  if (nfn) {
+    // Exact normals so the fillets meet the flat panels without a shading seam;
+    // the sign follows the winding so double-sided lighting stays correct.
+    const n = g.attributes.normal;
+    let k = 0;
+    for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++, k++) {
+      const [x, y, z] = nfn(i / nu, j / nv);
+      const sgn = x * n.getX(k) + y * n.getY(k) + z * n.getZ(k) < 0 ? -1 : 1;
+      n.setXYZ(k, sgn * x, sgn * y, sgn * z);
+    }
+    n.needsUpdate = true;
+  }
+  return mesh(g, mat, cast);
+}
+function shapeFrom(pts) {
+  const s = new THREE.Shape();
+  s.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1]);
+  s.closePath();
+  return s;
+}
+function rectPath(x1, y1, x2, y2) {
+  const p = new THREE.Path();
+  p.moveTo(x1, y1); p.lineTo(x2, y1); p.lineTo(x2, y2); p.lineTo(x1, y2); p.closePath();
+  return p;
+}
+function shapeMesh(shape, mat, cast = true) {
+  const g = new THREE.ShapeGeometry(shape, 8);
+  g.scale(0.001, 0.001, 0.001);
+  return mesh(g, mat, cast);
+}
+function extrudeMesh(shape, depthMM, mat) {
+  const g = new THREE.ExtrudeGeometry(shape, { depth: depthMM, bevelEnabled: false, curveSegments: 6 });
+  g.scale(0.001, 0.001, 0.001);
+  return mesh(g, mat);
+}
+// Flat-topped wheel-arch outline with flared ends (x along body, y up), left-bottom → right-bottom.
+function archPts(xc, half, yb, yt, r, slope, n = 10) {
+  const flare = slope * Math.max(yt - r - yb, 0);
+  const pts = [[xc - half - flare, yb]];
+  for (let i = 0; i <= n; i++) { const a = Math.PI - (Math.PI / 2) * i / n; pts.push([xc - half + r + r * Math.cos(a), yt - r + r * Math.sin(a)]); }
+  for (let i = 0; i <= n; i++) { const a = Math.PI / 2 - (Math.PI / 2) * i / n; pts.push([xc + half - r + r * Math.cos(a), yt - r + r * Math.sin(a)]); }
+  pts.push([xc + half + flare, yb]);
+  return pts;
+}
+function ribbon(pts, y0, y1, mat) {
+  const pos = [];
+  const idx = [];
+  for (const [x, z] of pts) pos.push(m(x), m(y0), m(z), m(x), m(y1), m(z));
+  for (let i = 0; i < pts.length - 1; i++) { const a = 2 * i, b = a + 1, c = a + 2, d = a + 3; idx.push(a, c, b, b, c, d); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return mesh(g, mat, false);
+}
+function arcPts(cx, cz, rad, a0, a1, n = 14) {
+  const out = [];
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; out.push([cx + rad * Math.cos(a), cz + rad * Math.sin(a)]); }
+  return out;
+}
+// Riveted skin rule points are mm with x from the front face, y across (−y = vehicle left), z up from the
+// body bottom, each [x, y, z, nx, ny, nz] → page coordinates (x, z + ground clearance, −y)
+const skinPt = q => V3(q[0], q[2] + RULE.Z0, -q[1]);
+const skinN = q => new THREE.Vector3(q[3], q[5], -q[4]).normalize();
+// Straight-segment path parametrised by length, so seam tubes keep their corners
+class PolyCurve extends THREE.Curve {
+  constructor(pts) {
+    super();
+    this.pts = pts;
+    this.cum = [0];
+    for (let i = 1; i < pts.length; i++) this.cum.push(this.cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+  }
+  getPoint(t, target = new THREE.Vector3()) {
+    const s = t * this.cum[this.cum.length - 1];
+    let i = 1;
+    while (i < this.cum.length - 1 && this.cum[i] < s) i++;
+    const seg = this.cum[i] - this.cum[i - 1];
+    return target.copy(this.pts[i - 1]).lerp(this.pts[i], seg > 0 ? (s - this.cum[i - 1]) / seg : 0);
+  }
+}
+// Drops points that sit on the straight line between their neighbours (tolerance in metres)
+function simplifyRun(run, tol = 0.00005) {
+  const keep = [run[0]];
+  const ab = new THREE.Vector3(), ac = new THREE.Vector3();
+  for (let i = 1; i < run.length - 1; i++) {
+    ab.subVectors(run[i], keep[keep.length - 1]);
+    ac.subVectors(run[i + 1], keep[keep.length - 1]);
+    if (ac.length() > 1e-9 && ab.cross(ac).length() / ac.length() > tol) keep.push(run[i]);
+  }
+  keep.push(run[run.length - 1]);
+  return keep;
+}
+
+/* =====================================================================
+   Body shell — outer paint + inner lining, R500 / R450, flat bottom
+   ===================================================================== */
+function buildShell(D, inner) {
+  const g = new THREE.Group();
+  const off = inner ? RULE.WT : 0;
+  const r = RULE.R - off;
+  const mat = inner ? MAT.lining : MAT.paint;
+  const cast = !inner;
+  const L = D.L;
+  const cxF = RULE.R, cxR = L - RULE.R, cz = RULE.W / 2 - RULE.R, yc = D.FLAT_TOP;
+  const yB = inner ? D.ZF - 20 : RULE.Z0;
+
+  // Side walls with wheel-arch notch and service-window holes.
+  // The lining is cut square around the interior wheel box instead of following the arch.
+  for (const s of [1, -1]) {
+    const notch = inner
+      ? [[D.archX1, yB], [D.archX1, D.troughTop], [D.archX2, D.troughTop], [D.archX2, yB]]
+      : D.openingPts(yB);
+    const shape = shapeFrom([[cxF, yB], ...notch, [cxR, yB], [cxR, yc], [cxF, yc]]);
+    for (const w of D.windows) if (w.side === s) shape.holes.push(rectPath(w.x1, w.y1, w.x2, w.y2));
+    const o = shapeMesh(shape, mat, cast);
+    o.position.z = m(s * (cz + r));
+    g.add(o);
+  }
+  // End walls; rear wall carries the door hole
+  for (const rear of [false, true]) {
+    const shape = shapeFrom([[-cz, yB], [cz, yB], [cz, yc], [-cz, yc]]);
+    if (rear) shape.holes.push(rectPath(-D.doorW / 2, D.ZF, D.doorW / 2, D.ZF + D.doorH));
+    const gg = new THREE.ShapeGeometry(shape, 8);
+    gg.scale(0.001, 0.001, 0.001);
+    gg.rotateY(Math.PI / 2);
+    const o = mesh(gg, mat, cast);
+    o.position.x = m(rear ? cxR + r : cxF - r);
+    g.add(o);
+  }
+  // Roof
+  const roofG = new THREE.PlaneGeometry(m(cxR - cxF), m(2 * cz));
+  roofG.rotateX(-Math.PI / 2);
+  const roof = mesh(roofG, mat, cast);
+  roof.position.set(m((cxF + cxR) / 2), m(yc + r), 0);
+  g.add(roof);
+  // Vertical corner fillets
+  for (const [cx, sz, a0] of [[cxR, 1, 0], [cxF, 1, Math.PI / 2], [cxF, -1, Math.PI], [cxR, -1, 1.5 * Math.PI]]) {
+    g.add(paramSurface((u, v) => {
+      const a = a0 + u * Math.PI / 2;
+      return [m(cx + r * Math.cos(a)), m(yB + v * (yc - yB)), m(sz * cz + r * Math.sin(a))];
+    }, 14, 1, mat, cast, u => {
+      const a = a0 + u * Math.PI / 2;
+      return [Math.cos(a), 0, Math.sin(a)];
+    }));
+  }
+  // Long top fillets
+  for (const s of [1, -1]) {
+    g.add(paramSurface((u, v) => {
+      const b = v * Math.PI / 2;
+      return [m(cxF + u * (cxR - cxF)), m(yc + r * Math.sin(b)), m(s * (cz + r * Math.cos(b)))];
+    }, 1, 14, mat, cast, (u, v) => {
+      const b = v * Math.PI / 2;
+      return [0, Math.sin(b), s * Math.cos(b)];
+    }));
+  }
+  // End top fillets
+  for (const [cx, dx] of [[cxF, -1], [cxR, 1]]) {
+    g.add(paramSurface((u, v) => {
+      const b = v * Math.PI / 2;
+      return [m(cx + dx * r * Math.cos(b)), m(yc + r * Math.sin(b)), m(-cz + u * 2 * cz)];
+    }, 1, 14, mat, cast, (u, v) => {
+      const b = v * Math.PI / 2;
+      return [dx * Math.cos(b), Math.sin(b), 0];
+    }));
+  }
+  // Spherical corner caps
+  for (const [cx, dx] of [[cxF, -1], [cxR, 1]]) for (const s of [1, -1]) {
+    g.add(paramSurface((u, v) => {
+      const a = u * Math.PI / 2, b = v * Math.PI / 2;
+      return [m(cx + dx * r * Math.cos(b) * Math.cos(a)), m(yc + r * Math.sin(b)), m(s * (cz + r * Math.cos(b) * Math.sin(a)))];
+    }, 12, 12, mat, cast, (u, v) => {
+      const a = u * Math.PI / 2, b = v * Math.PI / 2;
+      return [dx * Math.cos(b) * Math.cos(a), Math.sin(b), s * Math.cos(b) * Math.sin(a)];
+    }));
+  }
+  return g;
+}
+
+function roundedRectShape(x1, x2, h, rad) {
+  const s = new THREE.Shape();
+  s.moveTo(x1 + rad, -h);
+  s.lineTo(x2 - rad, -h);
+  s.absarc(x2 - rad, -h + rad, rad, -Math.PI / 2, 0, false);
+  s.lineTo(x2, h - rad);
+  s.absarc(x2 - rad, h - rad, rad, 0, Math.PI / 2, false);
+  s.lineTo(x1 + rad, h);
+  s.absarc(x1 + rad, h - rad, rad, Math.PI / 2, Math.PI, false);
+  s.lineTo(x1, -h + rad);
+  s.absarc(x1 + rad, -h + rad, rad, Math.PI, 1.5 * Math.PI, false);
+  return s;
+}
+
+/* =====================================================================
+   Whole trailer
+   ===================================================================== */
+async function signTexture(text, aspect, opts = {}) {
+  const { bg = '#121416', fill = '#FFF4E3', stroke = null } = opts; // bg null = transparent (cut-out letters); stroke = letter return colour
+  const c = document.createElement('canvas');
+  c.width = 2048; c.height = Math.max(96, Math.round(2048 / aspect));
+  const g = c.getContext('2d');
+  if (bg) { g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height); }
+  const family = '"Barlow Condensed", "Arial Narrow", "PingFang SC", sans-serif';
+  try { await document.fonts.load('700 100px "Barlow Condensed"'); } catch (e) { /* fallback font */ }
+  let fs = Math.round(c.height * 0.66);
+  g.font = `700 ${fs}px ${family}`;
+  while (g.measureText(text).width > c.width - 140 && fs > 24) { fs -= 4; g.font = `700 ${fs}px ${family}`; }
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  if (stroke) {
+    g.strokeStyle = stroke;
+    g.lineWidth = Math.max(4, fs * 0.09);
+    g.lineJoin = 'round';
+    g.strokeText(text, c.width / 2, c.height / 2 + 4);
+  }
+  g.fillStyle = fill;
+  g.fillText(text, c.width / 2, c.height / 2 + 4);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+async function buildTrailer(D) {
+  const T = new THREE.Group();
+  const L = D.L, W = RULE.W, Z0 = RULE.Z0, ZF = D.ZF, H = RULE.H, R = RULE.R, WT = RULE.WT;
+  const cxF = R, cxR = L - R, cz = W / 2 - R;
+  const flaps = [], struts = [];
+
+  // Wheel-arch opening follows the visible wheel-trough and fender shape.
+  // the fender's outer outline moved in by 10 mm - circles of that radius round each wheel centre, the outer axles' arcs
+  // at the ends and a flat top between the crowns (parts library assembly V3). The fender (P05) itself is unchanged and
+  // hides the opening edge; no body panel is left between the axles.
+  const FEN = PARTS.place.fenders, TR = RULE.TIRE_D / 2;
+  let TRO = PARTS.place.wheel_arch_trough;
+  if (!TRO) {
+    console.warn('parts bundle has no wheel_arch_trough; using the fender outline moved in by 10 mm');
+    TRO = { radius_above_wheel_center_mm: FEN.top_z_above_wheel_center_mm - 10, width_from_wall_mm: 250 };
+  }
+  const tR = TRO.radius_above_wheel_center_mm, ax0 = D.axles[0], axN = D.axles[D.axles.length - 1];
+  // Top of the trough-section opening at x (-Infinity outside it); also used to trim seams and rivets at the arch
+  const openTop = x => {
+    const dx = x < ax0 ? ax0 - x : x > axN ? x - axN : 0;
+    return dx <= tR ? TR + Math.sqrt(tR * tR - dx * dx) : -Infinity;
+  };
+  D.openingPts = yb => {
+    const pts = [];
+    for (let x = ax0 - tR; x <= axN + tR; x += 4) { const z = openTop(x); if (z >= yb) pts.push([x, z]); }
+    return [[pts[0][0], yb], ...pts, [pts[pts.length - 1][0], yb]];
+  };
+  const halfAt = z => Math.sqrt(Math.max(tR * tR - (z - TR) * (z - TR), 0));
+  D.archX1 = ax0 - halfAt(Z0);
+  D.archX2 = axN + halfAt(Z0);
+  D.troughTop = TR + tR;
+  const bandX1 = ax0 - halfAt(Z0 + 45), bandX2 = axN + halfAt(Z0 + 45);
+
+  T.add(buildShell(D, false));
+  T.add(buildShell(D, true));
+
+  // Floor and underbody, both opened over the wheel wells
+  const ax1 = D.archX1, ax2 = D.archX2, span = ax2 - ax1, axm = (ax1 + ax2) / 2;
+  const WELL_IN = W / 2 - WT - TRO.width_from_wall_mm;   // trough width measured from the wall's inner face
+  const wellTop = D.troughTop - 3;   // trough cavity top (3 mm box wall)
+  const floorShape = roundedRectShape(WT, L - WT, W / 2 - WT, R - WT);
+  floorShape.holes.push(rectPath(ax1 - 5, WELL_IN, ax2 + 5, W / 2 - WT - 5), rectPath(ax1 - 5, -(W / 2 - WT - 5), ax2 + 5, -WELL_IN));
+  const floor = shapeMesh(floorShape, MAT.chequer, false);
+  floor.geometry.rotateX(-Math.PI / 2);
+  floor.position.y = m(ZF);
+  T.add(floor);
+  const underShape = roundedRectShape(1, L - 1, W / 2 - 1, R - 1);
+  underShape.holes.push(rectPath(ax1, WELL_IN + 5, ax2, W / 2 - 6), rectPath(ax1, -(W / 2 - 6), ax2, -(WELL_IN + 5)));
+  const under = shapeMesh(underShape, MAT.well, false);
+  under.geometry.rotateX(-Math.PI / 2);
+  under.position.y = m(Z0 + 2);
+  T.add(under);
+
+  // Wheel wells (dark, seen through the arches) and the interior wheel boxes (lining)
+  for (const s of [1, -1]) {
+    const zOut = s * (W / 2 - 1), zBack = s * (WELL_IN + 5), depth = Math.abs(zOut - zBack), hgt = wellTop - Z0;
+    const top = new THREE.PlaneGeometry(m(span), m(depth));
+    top.rotateX(-Math.PI / 2);
+    const tp = mesh(top, MAT.well, false);
+    tp.position.set(m(axm), m(wellTop), m((zOut + zBack) / 2));
+    T.add(tp);
+    const bk = mesh(new THREE.PlaneGeometry(m(span), m(hgt)), MAT.well, false);
+    bk.position.set(m(axm), m(Z0 + hgt / 2), m(zBack));
+    T.add(bk);
+    for (const xe of [ax1, ax2]) {
+      const eg = new THREE.PlaneGeometry(m(depth), m(hgt));
+      eg.rotateY(Math.PI / 2);
+      const e = mesh(eg, MAT.well, false);
+      e.position.set(m(xe), m(Z0 + hgt / 2), m((zOut + zBack) / 2));
+      T.add(e);
+    }
+    const zi = s * WELL_IN, zw = s * (W / 2 - WT), bd = Math.abs(zw - zi);
+    const bt = new THREE.PlaneGeometry(m(span + 10), m(bd));
+    bt.rotateX(-Math.PI / 2);
+    const btm = mesh(bt, MAT.lining, false);
+    btm.position.set(m(axm), m(D.troughTop), m((zi + zw) / 2));
+    T.add(btm);
+    const bf = mesh(new THREE.PlaneGeometry(m(span + 10), m(D.troughTop - ZF)), MAT.lining, false);
+    bf.position.set(m(axm), m((ZF + D.troughTop) / 2), m(zi));
+    T.add(bf);
+    for (const xe of [ax1 - 5, ax2 + 5]) {
+      const eg = new THREE.PlaneGeometry(m(bd), m(D.troughTop - ZF));
+      eg.rotateY(Math.PI / 2);
+      const e = mesh(eg, MAT.lining, false);
+      e.position.set(m(xe), m((ZF + D.troughTop) / 2), m((zi + zw) / 2));
+      T.add(e);
+    }
+  }
+
+  // Bottom aluminium band (ribbed) following the R500 plan corners, broken at the arches
+  const band = (off, y0, y1, mat) => {
+    const rad = R + off, zS = W / 2 + off;
+    for (const s of [1, -1]) {
+      T.add(ribbon([[cxF, s * zS], [bandX1, s * zS]], y0, y1, mat));
+      T.add(ribbon([[bandX2, s * zS], [cxR, s * zS]], y0, y1, mat));
+    }
+    T.add(ribbon([[-off, -cz], [-off, cz]], y0, y1, mat));
+    T.add(ribbon([[L + off, -cz], [L + off, cz]], y0, y1, mat));
+    T.add(ribbon(arcPts(cxR, cz, rad, 0, Math.PI / 2), y0, y1, mat));
+    T.add(ribbon(arcPts(cxF, cz, rad, Math.PI / 2, Math.PI), y0, y1, mat));
+    T.add(ribbon(arcPts(cxF, -cz, rad, Math.PI, 1.5 * Math.PI), y0, y1, mat));
+    T.add(ribbon(arcPts(cxR, -cz, rad, 1.5 * Math.PI, 2 * Math.PI), y0, y1, mat));
+  };
+  band(12, Z0 - 15, Z0 + 105, MAT.alu);
+  band(13, Z0 + 22, Z0 + 28, MAT.dark);
+  band(13, Z0 + 62, Z0 + 68, MAT.dark);
+
+  // Stainless fenders (P05, website / original-vehicle style): tandem or single to match the axle count
+  const fenderKey = D.axleCount > 1 ? 'fenderTandem' : 'fenderSingle';
+  for (const s of [1, -1]) {
+    const f = partInstance(fenderKey, D.groupX, TR, s * W / 2, s > 0 ? 0 : FEN.right_side_rot_z_deg);
+    if (state.fenderPaint) f.traverse(o => { if (o.isMesh) o.material = MAT.paint; });
+    T.add(f);
+  }
+
+  // Riveted skin: seam edges and rivets from the shared panel rule (parts library), cut at this build's openings
+  const lay = PARTS.skin.layouts[String(L)];
+  const sb = PARTS.skin.body;
+  if (lay && sb.width_mm === W && sb.height_mm === H && sb.outer_radius_mm === R) {
+    // True where a rule point (skin coordinates) falls within 6 + c mm of a body opening: service windows, the rear door,
+    // Wheel-arch openings hide seams and rivets inside the visible cut-outs.
+    const inOpening = (surface, q, c) => {
+      const x = q[0], zg = q[2] + Z0, e = 6 + c;
+      if (surface === 'side_L' || surface === 'side_R') {
+        const side = surface === 'side_L' ? 1 : -1;
+        for (const w of D.windows) if (w.side === side && x > w.x1 - e && x < w.x2 + e && zg > w.y1 - e && zg < w.y2 + e) return true;
+        if (zg < Math.max(openTop(x - e), openTop(x + e)) + e) return true;
+      }
+      return surface === 'end_R' && Math.abs(q[1]) < D.doorW / 2 + e && zg > ZF - e && zg < ZF + D.doorH + e;
+    };
+    const RV = PARTS.skin.rivet, rr = RV.head_diameter_mm / 2;
+    const dome = new THREE.SphereGeometry(m(rr), 10, 3, 0, Math.PI * 2, 0, Math.PI / 2);
+    dome.scale(1, RV.head_height_mm / rr, 1);
+    dome.translate(0, -m(0.3), 0);
+    const kept = [];
+    for (const sm of lay.seams) for (const q of sm.rivets) if (!inOpening(sm.surface, q, rr + 1)) kept.push(q);
+    const rivets = new THREE.InstancedMesh(dome, MAT.paint, kept.length);
+    const mtx = new THREE.Matrix4(), quat = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
+    kept.forEach((q, i) => rivets.setMatrixAt(i, mtx.compose(skinPt(q), quat.setFromUnitVectors(UP, skinN(q)), one)));
+    rivets.receiveShadow = true;
+    T.add(rivets);
+    // Lap edges: thin tubes 0.6 mm proud of the surface, sampled every 10 mm and broken at the openings
+    for (const sm of lay.seams) {
+      let run = [];
+      const flush = () => {
+        if (run.length > 1) {
+          const pts = simplifyRun(run);
+          T.add(mesh(new THREE.TubeGeometry(new PolyCurve(pts), Math.max(2, pts.length), m(1.5), 5, false), MAT.paint, false));
+        }
+        run = [];
+      };
+      const e = sm.edge;
+      for (let i = 0; i < e.length - 1; i++) {
+        const a = e[i], b = e[i + 1];
+        const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / 10));
+        for (let k = i === 0 ? 0 : 1; k <= n; k++) {
+          const q = a.map((v, j) => v + (b[j] - v) * k / n);
+          if (inOpening(sm.surface, q, 0)) flush();
+          else run.push(skinPt(q).add(skinN(q).multiplyScalar(m(0.6))));
+        }
+      }
+      flush();
+    }
+  } else {
+    console.warn('Riveted skin rule missing for this length or body size differs; skin not drawn');
+  }
+
+  // Service windows: reveal, frame, drip rail, hinge, flap, gas struts, counter shelf
+  const FR = RULE.FRAME;
+  for (const w of D.windows) {
+    const s = w.side, zo = s * W / 2, zi = s * (W / 2 - WT);
+    const zmin = Math.min(zo, zi), zmax = Math.max(zo, zi);
+    T.add(box(w.x1, w.x2, w.y1 - 1, w.y1, zmin, zmax, MAT.alu, false));
+    T.add(box(w.x1, w.x2, w.y2, w.y2 + 1, zmin, zmax, MAT.alu, false));
+    T.add(box(w.x1 - 1, w.x1, w.y1, w.y2, zmin, zmax, MAT.alu, false));
+    T.add(box(w.x2, w.x2 + 1, w.y1, w.y2, zmin, zmax, MAT.alu, false));
+    const ww = w.x2 - w.x1, wh = w.y2 - w.y1;
+    const ring = new THREE.Shape();
+    ring.moveTo(-ww / 2 - FR, -wh / 2 - FR); ring.lineTo(ww / 2 + FR, -wh / 2 - FR); ring.lineTo(ww / 2 + FR, wh / 2 + FR); ring.lineTo(-ww / 2 - FR, wh / 2 + FR); ring.closePath();
+    ring.holes.push(rectPath(-ww / 2, -wh / 2, ww / 2, wh / 2));
+    const frame = extrudeMesh(ring, 10, MAT.alu);
+    frame.position.set(m((w.x1 + w.x2) / 2), m((w.y1 + w.y2) / 2), m(zo - s));
+    if (s < 0) frame.rotation.y = Math.PI;
+    T.add(frame);
+    T.add(box(w.x1 - 150, w.x2 + 150, w.y2 + FR + 12, w.y2 + FR + 30, Math.min(zo - s * 2, zo + s * 45), Math.max(zo - s * 2, zo + s * 45), MAT.alu));
+    T.add(cyl(12, ww + 2 * FR, 'x', (w.x1 + w.x2) / 2, w.y2 + FR, zo + s * 14, MAT.alu, 16));
+
+    const fw = ww + 2 * FR, fh = wh + 2 * FR;
+    const fg = new THREE.BoxGeometry(m(fw), m(fh), 0.03);
+    fg.translate(0, -m(fh) / 2, s * 0.015);
+    const outerFace = s > 0 ? 4 : 5;
+    const mats = [MAT.paint, MAT.paint, MAT.paint, MAT.paint, MAT.paint, MAT.paint];
+    mats[s > 0 ? 5 : 4] = MAT.lining;
+    mats[outerFace] = MAT.paint;
+    const flap = mesh(fg, mats);
+    const pivot = new THREE.Group();
+    pivot.position.set(m((w.x1 + w.x2) / 2), m(w.y2 + FR), m(zo + s * 12));
+    pivot.add(flap);
+    T.add(pivot);
+    flaps.push({ pivot, side: s });
+    for (const xs of [w.x1 - FR / 2, w.x2 + FR / 2]) {
+      const st = mesh(new THREE.CylinderGeometry(0.009, 0.009, 1, 10), MAT.dark);
+      T.add(st);
+      struts.push({ mesh: st, pivot, wall: V3(xs, w.y1 + wh * 0.35, zo + s * 15), local: new THREE.Vector3(m(xs - (w.x1 + w.x2) / 2), -m(fh) * 0.55, 0) });
+    }
+    // Outside serving shelf sits just under the closed flap
+    const zc1 = zo + s * 12, zc2 = zo + s * 312;
+    T.add(box(w.x1 - 50, w.x2 + 50, w.y1 - 70, w.y1 - 40, Math.min(zc1, zc2), Math.max(zc1, zc2), MAT.worktop));
+    for (const xb of [w.x1 + 150, (w.x1 + w.x2) / 2, w.x2 - 150]) {
+      T.add(rod([xb, w.y1 - 320, zo + s * 12], [xb, w.y1 - 70, zo + s * 270], 8, MAT.alu));
+    }
+  }
+
+  // Rear door (flush panel, black gap, recessed lock, surface hinges, drip rail) + reveal + pull-out step
+  {
+    const DW = D.doorW, DH = D.doorH;
+    T.add(box(L - WT, L, ZF, ZF + 1, -DW / 2, DW / 2, MAT.alu, false));
+    T.add(box(L - WT, L, ZF + DH, ZF + DH + 1, -DW / 2, DW / 2, MAT.alu, false));
+    T.add(box(L - WT, L, ZF, ZF + DH, -DW / 2 - 1, -DW / 2, MAT.alu, false));
+    T.add(box(L - WT, L, ZF, ZF + DH, DW / 2, DW / 2 + 1, MAT.alu, false));
+    T.add(box(L - 36, L + 0.5, ZF + 2, ZF + DH - 2, -DW / 2 + 2, DW / 2 - 2, MAT.paint));
+    const gap = new THREE.Shape();
+    gap.moveTo(-DW / 2 - 8, -DH / 2 - 8); gap.lineTo(DW / 2 + 8, -DH / 2 - 8); gap.lineTo(DW / 2 + 8, DH / 2 + 8); gap.lineTo(-DW / 2 - 8, DH / 2 + 8); gap.closePath();
+    gap.holes.push(rectPath(-DW / 2, -DH / 2, DW / 2, DH / 2));
+    const gm = extrudeMesh(gap, 6, MAT.black);
+    gm.geometry.rotateY(Math.PI / 2);
+    gm.position.set(m(L - 4), m(ZF + DH / 2), 0);
+    T.add(gm);
+    const lz = DW / 2 - 95;
+    T.add(box(L, L + 12, ZF + 980, ZF + 1100, lz - 45, lz + 45, MAT.black));
+    T.add(box(L + 10, L + 22, ZF + 1010, ZF + 1075, lz - 12, lz + 12, MAT.alu));
+    for (const zh of [ZF + 260, ZF + DH - 300]) T.add(box(L, L + 10, zh - 45, zh + 45, -DW / 2 - 40, -DW / 2 + 30, MAT.alu));
+    T.add(box(L - 20, L + 40, ZF + DH + 20, ZF + DH + 45, -DW / 2 - 70, DW / 2 + 70, MAT.paint));
+    const sw = DW - 100, ty = ZF * 0.5;
+    for (const s of [1, -1]) {
+      T.add(box(L - 450, L + 40, Z0 - 70, Z0 - 30, s * sw / 2 - (s > 0 ? 40 : 0), s * sw / 2 + (s > 0 ? 0 : 40), MAT.galv));
+      T.add(rod([L + 30, Z0 - 60, s * (sw / 2 - 20)], [L + 250, ty, s * (sw / 2 - 20)], 12, MAT.alu));
+    }
+    T.add(box(L + 60, L + 330, ty - 18, ty + 17, -sw / 2, sw / 2, MAT.chequer));
+  }
+
+  // Rear lights, website style: body-colour plinth drawn here; lamp stack and triangle reflector are shared part P06
+  for (const s of [1, -1]) {
+    const lz = s * 800;
+    T.add(box(L - 130, L + 20, Z0 + 150, Z0 + 840, lz - 62, lz + 62, MAT.paint));
+    T.add(partInstance('tailStack', L + 20, Z0 + 590, lz, 0));
+    T.add(partInstance('reflector', L + 20, Z0 + 185, lz, 0));
+  }
+  // Top corner marker lamps (shared part P08): red at the rear, white at the front, set 70 below the roof-curve
+  // line so the lamp base clears the lap seam at the top of the corner panel
+  for (const [xe, dir, key] of [[L, 1, 'markerRed'], [0, -1, 'markerWhite']]) for (const s of [1, -1]) {
+    const zz = 760, d = zz - cz;
+    const inset = R - Math.sqrt(R * R - d * d);
+    const ang = Math.asin(d / R);
+    const rot = dir > 0 ? -s * ang : Math.PI + s * ang;
+    T.add(partInstance(key, xe - dir * (inset + 4), D.FLAT_TOP - 70, s * zz, THREE.MathUtils.radToDeg(rot)));
+  }
+  // Amber oval side markers (shared part P07)
+  for (const s of [1, -1]) for (const [xm, ym] of [[R + 120, Z0 + 170], [D.groupX, Z0 + D.archH + 150], [L - R - 120, Z0 + 170]]) {
+    T.add(partInstance('sideMarker', xm, ym, s * W / 2, s > 0 ? 0 : 180));
+  }
+  // Shore power inlet + water filler on the side without the service window
+  {
+    const hasL = D.sides.includes(1), hasR = D.sides.includes(-1);
+    if (!(hasL && hasR)) {
+      const os = hasL ? -1 : 1;
+      T.add(box(650, 770, Z0 + 900, Z0 + 1040, Math.min(os * (W / 2 - 5), os * (W / 2 + 85)), Math.max(os * (W / 2 - 5), os * (W / 2 + 85)), MAT.blueIec));
+      T.add(cyl(45, 30, 'z', 1150, Z0 + 650, os * (W / 2 + 12), MAT.clear, 28));
+    } else {
+      T.add(box(-85, 5, Z0 + 1500, Z0 + 1640, 250, 370, MAT.blueIec));
+    }
+  }
+  // Rear bumper + blank rear plate + plate lamp
+  T.add(box(L - 40, L + 20, Z0 - 90, Z0 - 40, -700, 700, MAT.galv));
+  T.add(box(L + 20, L + 26, Z0 - 161, Z0 - 50, -260, 260, MAT.plate, false));
+  T.add(box(L + 20, L + 55, Z0 - 50, Z0 - 10, -60, 60, MAT.black));
+
+  // Running gear: shared wheel part P01 (white spoke steel rim, 185R14C); axle beams, springs and hangers drawn here
+  const PL = PARTS.place;
+  const tireR = RULE.TIRE_D / 2;
+  const wheelZ = PL.wheels.center_y_abs_mm;
+  for (const ax of D.axles) {
+    T.add(cyl(30, 2 * (wheelZ - RULE.TIRE_W / 2 - 20), 'z', ax, tireR, 0, MAT.dark, 20));
+    for (const s of [1, -1]) {
+      // s = +1 is the vehicle's left (+z); the part's outer face points +z, so right-side wheels turn 180°
+      T.add(partInstance('wheel', ax, tireR, s * wheelZ, s > 0 ? 0 : PL.wheels.right_side_rot_z_deg));
+      // Leaf springs (under-slung) and hangers
+      [760, 620, 480].forEach((ln, k) => {
+        const sg = new THREE.BoxGeometry(m(ln), 0.012, 0.06, 16, 1, 1);
+        const p = sg.attributes.position;
+        for (let i = 0; i < p.count; i++) { const xx = p.getX(i) / m(380); p.setY(i, p.getY(i) + 0.07 * xx * xx); }
+        sg.computeVertexNormals();
+        const sp = mesh(sg, MAT.dark);
+        sp.position.set(m(ax), m(tireR - 36 - k * 13), m(s * 780));
+        T.add(sp);
+      });
+      for (const dxh of [-380, 380]) T.add(box(ax + dxh - 15, ax + dxh + 15, tireR + 25, Z0 + 2, s * 780 - 30, s * 780 + 30, MAT.galv));
+    }
+  }
+  // Stabiliser legs: shared part P02 (267265 scissor steady, deployed), folding toward the middle of the body
+  const LG = PL.stabiliser_legs;
+  LG.x_ratio.forEach((ratio, i) => {
+    const rz = LG.rot_z_deg[i === 0 ? 'front' : 'rear'];
+    for (const s of [1, -1]) T.add(partInstance('leg', L * ratio, Z0, s * LG.y_abs_mm, rz));
+  });
+
+  // Drawbar + overrun coupling (P04) and automatic jockey wheel (P03); the A-frame sits in the chassis-rail layer
+  const TX = -RULE.TONGUE, ZC = RULE.COUPLING_H, ZB = Z0 + PL.drawbar.beam_center_above_body_bottom_mm;
+  T.add(partInstance('drawbar', PL.drawbar.x_mm, Z0 + PL.drawbar.z_from_Z0_mm, -PL.drawbar.y_mm, PL.drawbar.rot_z_deg));
+  T.add(partInstance('jockey', PL.jockey_wheel.x_mm, Z0 + PL.jockey_wheel.z_from_Z0_mm, -PL.jockey_wheel.y_mm, PL.jockey_wheel.rot_z_deg));
+  {
+    const lead = new THREE.CatmullRomCurve3([V3(-5, Z0 + 60, 250), V3(-900, ZB - 60, 150), V3(TX + 320, ZC - 40, 70)]);
+    T.add(mesh(new THREE.TubeGeometry(lead, 40, 0.007, 8, false), MAT.black));
+    T.add(cyl(28, 90, 'x', TX + 250, ZC - 40, 70, MAT.black, 20));
+  }
+  // Front platform, generator enclosure, LPG bottles
+  if (state.generator || state.lpg > 0) {
+    const PD = 950;
+    T.add(box(-PD - 20, -5, ZB + 45, ZB + 55, -560, 560, MAT.chequer));
+    for (const xx of [-PD, -PD / 2, -20]) T.add(box(xx - 20, xx + 20, ZB - 5, ZB + 45, -560, 560, MAT.galv));
+  }
+  const gx = 850, gy = 1000, gz = 780;
+  if (state.generator) {
+    // Generator enclosure from the shared parts library (P10, ACC external mounted box, 850 x 1000 x 780 provisional).
+    // With "match body colour" only the stainless body takes the paint; louvres, lid seam and handle stay as they are
+    const gen = partInstance('generator', -60, ZB + 55, 0, 0);
+    if (state.generatorPaint) gen.traverse(o => { if (o.isMesh && o.material && o.material.name.startsWith('不锈钢')) o.material = MAT.paint; });
+    T.add(gen);
+  }
+  if (state.lpg > 0) {
+    const LX = (state.generator ? -60 - gx - 60 : -300) - 157.5;
+    T.add(box(LX - 190, LX + 190, ZB + 45, ZB + 55, -380, 380, MAT.lining));
+    T.add(rod([LX + 185, ZB + 55, -350], [LX + 185, ZB + 755, -350], 15, MAT.lining));
+    T.add(rod([LX + 185, ZB + 55, 350], [LX + 185, ZB + 755, 350], 15, MAT.lining));
+    T.add(rod([LX + 185, ZB + 755, -350], [LX + 185, ZB + 755, 350], 15, MAT.lining));
+    const prof = [];
+    const rb = m(157.5), hb = m(810);
+    prof.push(new THREE.Vector2(0.001, 0), new THREE.Vector2(rb - 0.015, 0), new THREE.Vector2(rb - 0.015, 0.035), new THREE.Vector2(rb, 0.045));
+    for (let i = 0; i <= 8; i++) { const a = (i / 8) * (Math.PI / 2); prof.push(new THREE.Vector2(0.09 + (rb - 0.09) * Math.cos(a), hb - 0.2 + 0.09 * Math.sin(a))); }
+    prof.push(new THREE.Vector2(0.09, hb - 0.1), new THREE.Vector2(0.095, hb), new THREE.Vector2(0.001, hb));
+    const count = state.lpg;
+    for (let k = 0; k < count; k++) {
+      const zz = (k - (count - 1) / 2) * 355;
+      const cylM = mesh(new THREE.LatheGeometry(prof, 40), MAT.lpg);
+      cylM.position.set(m(LX), m(ZB + 55), m(zz));
+      T.add(cylM);
+      for (const yy of [ZB + 55 + 300, ZB + 55 + 560]) {
+        const strap = mesh(new THREE.TorusGeometry(m(161), 0.006, 6, 40), MAT.black);
+        strap.rotation.x = Math.PI / 2;
+        strap.position.set(m(LX), m(yy), m(zz));
+        T.add(strap);
+      }
+    }
+  }
+
+  // Interior: counters, sink, hood, ceiling light
+  {
+    const backSides = [1, -1].filter(s => !D.sides.includes(s));
+    const counterSides = [1, -1];
+    for (const s of counterSides) {
+      const service = D.sides.includes(s);
+      const depth = service ? 500 : 600;
+      const zw = s * (W / 2 - WT), zin = s * (W / 2 - WT - depth);
+      const x1 = 380, x2 = L - 380;
+      T.add(box(x1, x2, ZF, ZF + 820, Math.min(zw, zin), Math.max(zw, zin), MAT.cabinet, false));
+      const zt = s * (W / 2 - WT - depth - 20);
+      T.add(box(x1 - 10, x2 + 10, ZF + 820, ZF + 850, Math.min(zw, zt), Math.max(zw, zt), MAT.worktop, false));
+      if (service) {
+        const sx = x1 + 350;
+        T.add(box(sx, sx + 420, ZF + 700, ZF + 851, Math.min(s * (W / 2 - WT - 80), s * (W / 2 - WT - 420)), Math.max(s * (W / 2 - WT - 80), s * (W / 2 - WT - 420)), MAT.bowl, false));
+      }
+    }
+    // Hood kept clear of the R450 lining curve
+    const hoodSide = backSides.length ? backSides[0] : -1;
+    const hl = Math.min(2500, L - 1400);
+    const zw = hoodSide * (W / 2 - WT - 120), zi = hoodSide * (W / 2 - WT - 550);
+    T.add(box(L / 2 - hl / 2, L / 2 + hl / 2, ZF + 1560, ZF + 1760, Math.min(zw, zi), Math.max(zw, zi), MAT.cabinet, false));
+    T.add(box(L / 2 - hl / 2 + 40, L / 2 + hl / 2 - 40, ZF + 1557, ZF + 1561, Math.min(zw, zi) + 20, Math.max(zw, zi) - 20, MAT.dark, false));
+    T.add(box(800, L - 800, Z0 + H - WT - 14, Z0 + H - WT - 4, -250, 250, MAT.led, false));
+    const lamp = new THREE.PointLight(0xfff1dc, 12, 0, 2);
+    lamp.position.set(m(L / 2), m(Z0 + H - 380), 0);
+    T.add(lamp);
+  }
+
+  if (state.sign && state.signText.trim()) T.add(await buildRoofSign(L, Z0 + H, signOffset(state.side)));
+
+  T.userData.flaps = flaps;
+  T.userData.struts = struts;
+  T.position.x = -m(L / 2);
+  return T;
+}
+
+// Roof sign (appearance reference): position from SIGN_MOUNT, look from SIGN_STYLES. L body length, roofY roof height,
+// zc centre across the roof (+ = vehicle left), all mm; coordinates as in the trailer group (x from the front face)
+async function buildRoofSign(L, roofY, zc) {
+  {
+    const st = signStyle();
+    const bl = Math.min(3000, L - 1600), bh = st.H, by = roofY + SIGN.GAP;
+    const faces = zc === 0 || st.faces === 2 ? [1, -1] : [Math.sign(zc)]; // single-faced styles face the window side
+    const text = state.signText.trim().toUpperCase();
+    const sg = new THREE.Group();
+    const face = (mat, dz, dir, w, hgt, yc) => {
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(m(w), m(hgt)), mat);
+      pl.position.set(m(L / 2), m(yc), m(zc + dir * dz));
+      if (dir < 0) pl.rotation.y = Math.PI;
+      pl.userData.ownMaterial = true;
+      sg.add(pl);
+    };
+    if (st.letters) {
+      const railH = 70, lh = bh - railH - 10;
+      sg.add(box(L / 2 - bl / 2, L / 2 + bl / 2, by, by + railH, zc - 25, zc + 25, MAT.signFrame));
+      // cut-out letters with a dark edge standing in for the letter returns, so they read against the sky
+      const tex = st.lit
+        ? await signTexture(text, (bl - 40) / lh, { bg: null, fill: '#fff4e3', stroke: '#26292c' })
+        : await signTexture(text, (bl - 40) / lh, { bg: null, fill: '#cfd4d8', stroke: '#474d52' });
+      const front = st.lit
+        ? new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.5, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 1.0, roughness: 0.5 })
+        : new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.5, metalness: 0.85, roughness: 0.28 });
+      const back = new THREE.MeshStandardMaterial({ color: '#1d2023', map: tex, alphaTest: 0.5, roughness: 0.6 });
+      for (const dir of [1, -1]) face(faces.includes(dir) ? front : back, 8, dir, bl - 40, lh, by + railH + 5 + lh / 2);
+    } else if (st.lit) {
+      sg.add(box(L / 2 - bl / 2, L / 2 + bl / 2, by, by + bh, zc - st.D / 2, zc + st.D / 2, MAT.signFrame));
+      const tex = await signTexture(text, (bl - 60) / (bh - 60));
+      const sm = new THREE.MeshStandardMaterial({ map: tex, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.9, roughness: 0.6 });
+      for (const dir of faces) face(sm, st.D / 2 + 1, dir, bl - 60, bh - 60, by + bh / 2);
+    } else {
+      sg.add(box(L / 2 - bl / 2, L / 2 + bl / 2, by, by + bh, zc - st.D / 2, zc + st.D / 2, MAT.alu));
+      const tex = await signTexture(text, (bl - 40) / (bh - 40), { bg: '#f2f3f1', fill: '#15171a' });
+      const sm = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55 });
+      for (const dir of faces) face(sm, st.D / 2 + 1, dir, bl - 40, bh - 40, by + bh / 2);
+    }
+    // Two posts with foot plates on the flat roof (support method is a placeholder)
+    for (const xp of [L / 2 - bl / 3, L / 2 + bl / 3]) {
+      sg.add(box(xp - SIGN_MOUNT.FOOT, xp + SIGN_MOUNT.FOOT, roofY - 2, roofY + 6, zc - SIGN_MOUNT.FOOT, zc + SIGN_MOUNT.FOOT, MAT.galv));
+      sg.add(rod([xp, roofY + 6, zc], [xp, by, zc], 14, MAT.galv));
+    }
+    return sg;
+  }
+}
+// Across-roof sign position for the model in view (+ = vehicle left). FT-4 has a flat roof: the same 50 mm rule
+// measured from the roof edge; its service windows are on the left.
+function currentSignOffset(D) {
+  return D.model === 'ft4' ? D.W / 2 - SIGN_MOUNT.EDGE_CLEAR - SIGN_MOUNT.FOOT : signOffset(state.side);
+}
+
+/* =====================================================================
+   FT-6 public display model
+   ===================================================================== */
+async function buildFT4(D) {
+  const T = new THREE.Group();
+  const A = FT4.place, key = part => FT4.byModel[part];
+  const flaps = [], struts = [];
+  const add = (k, x, y, z, rotZ = 0, rotX = 0) => { const o = ft4Instance(k, x, y, z, rotZ, rotX); T.add(o); return o; };
+  // Body V2 (with the interior seen through the openings); its composite panels, flaps and door take the chosen paint
+  const body = add(key(A.body.model), 0, 0, 0);
+  body.traverse(o => { if (o.isMesh && o.material && o.material.name === '白色复合板') o.material = MAT.paint; });
+  add(key(A.chassis.part), A.chassis.x_mm, A.chassis.y_mm, A.chassis.z_mm, A.chassis.rot_z_deg);
+  for (const k of ['drawbar', 'coupling', 'jockey_wheel']) { const p = A.tow[k]; add(key(p.part), p.x_mm, p.y_mm, p.z_mm, p.rot_z_deg); }
+  for (const l of A.stabiliser_legs.instances) add(key(l.part), l.x_mm, l.y_mm, l.z_mm, l.rot_z_deg);
+  // Wheels: the library wheel with the rim finish the assembly asks for (silver on the source trailer)
+  const finishMats = { '银色钢圈': MAT.rimSilver }, over = A.wheels.finish_override || {};
+  for (const w of A.wheels.instances) {
+    const o = add(key(w.part), w.x_mm, w.y_mm, w.z_mm, w.rot_z_deg);
+    o.traverse(n => { if (n.isMesh && n.material && finishMats[over[n.material.name]]) n.material = finishMats[over[n.material.name]]; });
+  }
+  for (const l of A.lights.instances) add(key(l.part), l.x_mm, l.y_mm, l.z_mm, l.rot_z_deg, l.rot_x_deg || 0);
+  T.updateMatrixWorld(true);
+  const foldAway = [];
+  setupFT4Flaps(T, body, A, flaps, struts, foldAway);
+  if (state.sign && state.signText.trim()) T.add(await buildRoofSign(D.L, D.roadH, currentSignOffset(D)));
+  Object.assign(T.userData, { flaps, struts, foldAway });
+  T.position.x = -m(D.L / 2);
+  return T;
+}
+// Window panels are supplied in the open position and rotate around their visible hinges.
+// assembly, so closing turns them back by the recorded angle; gas struts are redrawn between their two recorded ends.
+// The outside serving shelves were modelled for the open state only; a closed flap would pass through them, so they are
+// treated as fold-away shelves and hidden while the flap is not fully open (library follow-up: hinged shelf).
+function setupFT4Flaps(T, body, A, flaps, struts, foldAway) {
+  const P = p => new THREE.Vector3(m(p[0]), m(p[2]), m(-p[1]));
+  const defs = A.openings.filter(o => o.flap).map(o => {
+    const f = o.flap, axis = f.hinge_axis === 'X' ? 'x' : 'z';
+    const ang = THREE.MathUtils.degToRad(axis === 'x' ? f.open_rotation_deg : -f.open_rotation_deg);   // library +Y is page -z
+    const hinge = P(f.hinge_point_mm), e = new THREE.Euler();
+    e[axis] = ang;
+    const hp = f.hinge_point_mm;
+    const openCentre = P([hp[0], hp[1], hp[2] - f.panel_mm.length / 2]).sub(hinge).applyEuler(e).add(hinge);
+    const pivot = new THREE.Group();
+    pivot.position.copy(hinge);
+    T.add(pivot);
+    return { f, axis, ang, e, hinge, pivot, openCentre };
+  });
+  if (!defs.length) return;
+  const panels = [], bb = new THREE.Box3(), c = new THREE.Vector3();
+  body.traverse(o => {
+    if (!o.isMesh) return;
+    if (o.name.startsWith('翻板')) panels.push(o);
+    else if (o.name.startsWith('气撑')) o.visible = false;
+    else if (/^(窗外台板|台板前沿|台板托架)/.test(o.name)) foldAway.push(o);
+  });
+  for (const o of panels) {
+    bb.setFromObject(o).getCenter(c);
+    let best = defs[0];
+    for (const d of defs) if (c.distanceTo(d.openCentre) < c.distanceTo(best.openCentre)) best = d;
+    best.pivot.attach(o);
+  }
+  for (const d of defs) {
+    flaps.push({ pivot: d.pivot, ft4: d });
+    for (const s of d.f.struts) {
+      const st = mesh(new THREE.CylinderGeometry(0.009, 0.009, 1, 10), MAT.dark);
+      T.add(st);
+      struts.push({ mesh: st, pivot: d.pivot, wall: P(s.wall_mm), local: P(s.flap_closed_mm).sub(d.hinge).applyEuler(d.e) });
+    }
+  }
+}
+/* =====================================================================
+   Build / dispose / animate
+   ===================================================================== */
+function disposeGroup(g) {
+  g.traverse(o => {
+    if (o.userData.shared) return; // shared part geometry stays loaded for the next build
+    if (o.geometry) o.geometry.dispose();
+    if (o.userData.ownMaterial && o.material) {
+      for (const k of ['map', 'alphaMap', 'emissiveMap']) if (o.material[k]) o.material[k].dispose();
+      o.material.dispose();
+    }
+  });
+}
+let buildSeq = 0;
+// Take the current model off the stage while the selected model's parts are loading or have failed
+function clearStage(message) {
+  if (trailer) { scene.remove(trailer); disposeGroup(trailer); trailer = null; }
+  flaps = [];
+  struts = [];
+  ft4FoldAway = [];
+  contact.visible = false;
+  overlay.hidden = false;
+  overlay.textContent = message;
+  requestRender();
+}
+async function rebuild() {
+  if (!renderer) return;
+  const seq = ++buildSeq;
+  let next, D;
+  if (state.model === 'ft4') {
+    if (!FT4) {
+      clearStage(t('loadingFT'));
+      try { await ensureFT4(); } catch (err) { console.error(err); if (seq === buildSeq) clearStage(t('partsFailed')); return; }
+      if (seq !== buildSeq) return;
+      renderAll();
+    }
+    D = derive(state);
+    next = await buildFT4(D);
+  } else {
+    if (!PARTS) { clearStage(t(qfFailed ? 'partsFailed' : 'loading')); return; }
+    D = derive(state);
+    next = await buildTrailer(D);
+  }
+  if (seq !== buildSeq) { disposeGroup(next); return; }
+  if (trailer) { scene.remove(trailer); disposeGroup(trailer); }
+  trailer = next;
+  scene.add(trailer);
+  contact.visible = true;
+  flaps = next.userData.flaps || [];
+  struts = next.userData.struts || [];
+  ft4FoldAway = next.userData.foldAway || [];
+  contact.scale.set(m(D.L + 1800), m(3200), 1);
+  contact.position.x = -m(D.model === 'ft4' ? D.frontExt : RULE.TONGUE) / 2 * 0.4;
+  applyFlap();
+  overlay.hidden = true;
+  requestRender();
+}
+function applyFlap() {
+  const ang = THREE.MathUtils.degToRad(95) * flapAmount;
+  for (const f of flaps) {
+    if (f.ft4) { f.pivot.rotation.set(0, 0, 0); f.pivot.rotation[f.ft4.axis] = -f.ft4.ang * (1 - flapAmount); }   // FT-4 flaps are exported open
+    else f.pivot.rotation.x = -f.side * ang;
+  }
+  for (const o of ft4FoldAway) o.visible = flapAmount > 0.9;
+  for (const s of struts) {
+    const p = s.local.clone().applyEuler(s.pivot.rotation).add(s.pivot.position);
+    const d = p.clone().sub(s.wall);
+    const len = d.length();
+    s.mesh.position.copy(s.wall).add(p).multiplyScalar(0.5);
+    s.mesh.quaternion.setFromUnitVectors(UP, d.normalize());
+    s.mesh.scale.set(1, len, 1);
+    s.mesh.visible = flapAmount > 0.3;
+  }
+}
+function setFlap(open) {
+  state.flapOpen = open;
+  const target = open ? 1 : 0;
+  if (reduceMotion) { flapAmount = target; applyFlap(); requestRender(); renderFlapButton(); return; }
+  flapAnim = { t0: performance.now(), dur: 700, from: flapAmount, to: target };
+  renderFlapButton();
+}
+function stepFlap(now) {
+  const k = Math.min(1, (now - flapAnim.t0) / flapAnim.dur);
+  const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  flapAmount = flapAnim.from + (flapAnim.to - flapAnim.from) * e;
+  applyFlap();
+  if (k >= 1) flapAnim = null;
+}
+function flyTo(pos, target, instant) {
+  if (instant || reduceMotion) {
+    camera.position.copy(pos);
+    controls.target.copy(target);
+    controls.update();
+    requestRender();
+    return;
+  }
+  tween = { t0: performance.now(), dur: 800, p0: camera.position.clone(), p1: pos, q0: controls.target.clone(), q1: target };
+}
+function stepTween(now) {
+  const k = Math.min(1, (now - tween.t0) / tween.dur);
+  const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  camera.position.lerpVectors(tween.p0, tween.p1, e);
+  controls.target.lerpVectors(tween.q0, tween.q1, e);
+  if (k >= 1) tween = null;
+}
+// Distance along `dir` at which the whole rig (drawbar to step, ground to roof or lightbox)
+// fits the frame, with room for the chips above and the spec strip below.
+function viewExtents(D) {
+  const sign = state.sign && state.signText.trim() ? SIGN.GAP + signStyle().H : 0;
+  if (D.model === 'ft4') return { xs: [-m(D.L / 2 + D.frontExt), m(D.L / 2 + D.rearExt)], ys: [0, m(D.roadH + sign)], zs: [-m(D.W / 2), m(D.W / 2)] };
+  return { xs: [-m(D.L / 2 + RULE.TONGUE), m(D.L / 2 + 330)], ys: [0, m(RULE.Z0 + RULE.H + sign)], zs: [-m(RULE.ROAD_W / 2), m(RULE.ROAD_W / 2)] };
+}
+function fitDistance(dir, tgt, D) {
+  const { xs, ys, zs } = viewExtents(D);
+  const fwd = dir.clone().negate();
+  const right = new THREE.Vector3().crossVectors(fwd, UP).normalize();
+  const up = new THREE.Vector3().crossVectors(right, fwd);
+  const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / 1.3;
+  const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect / 1.08;
+  let d = 0;
+  for (const x of xs) for (const y of ys) for (const z of zs) {
+    const q = new THREE.Vector3(x, y, z).sub(tgt);
+    d = Math.max(d, Math.max(Math.abs(q.dot(right)) / tanH, Math.abs(q.dot(up)) / tanV) + q.dot(dir));
+  }
+  return Math.min(d, controls.maxDistance);
+}
+function goView(name, instant = false) {
+  if (!renderer) return;
+  activeView = name;
+  const D = derive(state);
+  const s = D.sides[0];
+  let pos, tgt;
+  if (name === 'inside') {
+    // Look in through a service window: CSQF-9's are centred on the body, FT-4 has a pillar there, so use its front side window
+    const wx = D.model === 'ft4' ? m(D.insideX - D.L / 2) : 0;
+    tgt = new THREE.Vector3(wx, 1.3, 0);
+    pos = new THREE.Vector3(wx + 0.25, 1.85, s * 3.4).sub(tgt).multiplyScalar(Math.max(1, 1.3 / camera.aspect)).add(tgt);
+    if (!state.flapOpen) setFlap(true);
+  } else {
+    const dirs = {
+      front: [-0.62, 0.2, 0.76 * s],
+      rear: [0.7, 0.2, -0.68 * s],
+      side: [0, 0.04, s],
+      top: [0, 1, 0.0015],
+    };
+    const dir = new THREE.Vector3(...dirs[name]).normalize();
+    const ex = viewExtents(D);
+    tgt = new THREE.Vector3((ex.xs[0] + ex.xs[1]) / 2, name === 'top' ? 0 : 1.2, 0);
+    pos = tgt.clone().addScaledVector(dir, fitDistance(dir, tgt, D));
+  }
+  flyTo(pos, tgt, instant);
+  renderViews();
+}
+function tick(now) {
+  requestAnimationFrame(tick);
+  let animating = false;
+  if (tween) { stepTween(now); animating = true; }
+  if (flapAnim) { stepFlap(now); animating = true; }
+  const changed = controls.update();
+  if (dirty || animating || changed) {
+    renderer.render(scene, camera);
+    dirty = false;
+  }
+}
+function resize() {
+  if (!renderer) return;
+  const r = stageEl.getBoundingClientRect();
+  const w = Math.max(1, Math.floor(r.width)), h = Math.max(1, Math.floor(r.height));
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  requestRender();
+}
+
+/* =====================================================================
+   UI
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+function segButton(label, pressed, onClick, opts = {}) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'seg';
+  b.setAttribute('aria-pressed', String(pressed));
+  b.innerHTML = label;
+  if (opts.disabled) { b.disabled = true; b.title = opts.title || ''; }
+  b.addEventListener('click', onClick);
+  return b;
+}
+function renderLengths() {
+  const el = $('opt-length');
+  el.replaceChildren(...LENGTHS.map(L => segButton(`${mStr(L)}<small>m</small>`, state.length === L, () => {
+    if (state.length === L) return;
+    state.length = L;
+    state.winWidth = Math.min(state.winRequestedWidth, largestWidthFor(L));
+    update(true);
+    goView(activeView);
+  })));
+}
+function renderFinish() {
+  const el = $('opt-finish');
+  el.replaceChildren(...FINISHES.filter(f => !f.models || f.models.includes(state.model)).map(f => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch';
+    b.style.background = f.metal ? 'linear-gradient(135deg, #f6f8f9 0%, #9aa3a8 42%, #eef1f2 58%, #7b848a 100%)' : f.hex;
+    b.setAttribute('aria-pressed', String(state.finish === f.id));
+    b.setAttribute('aria-label', t('f_' + f.id));
+    b.title = t('f_' + f.id);
+    b.addEventListener('click', () => { state.finish = f.id; savePublicSelection(); applyFinish(); renderFinish(); renderSpecs(); });
+    return b;
+  }));
+  $('finish-name').textContent = t('f_' + state.finish);
+}
+function renderSides() {
+  const opts = [['left', t('sideLeft')], ['right', t('sideRight')], ['both', t('sideBoth')]];
+  $('opt-side').replaceChildren(...opts.map(([id, label]) => segButton(label, state.side === id, () => {
+    if (state.side === id) return;
+    state.side = id;
+    update(true);
+    goView(activeView === 'top' ? 'top' : activeView);
+  })));
+}
+function renderWindowMode() {
+  $('opt-window-mode').replaceChildren(...[
+    ['auto', t('widthAuto')], ['locked', t('widthLocked')],
+  ].map(([id, label]) => segButton(label, state.windowMode === id, () => {
+    if (state.windowMode === id) return;
+    state.windowMode = id;
+    update(false);
+  })));
+}
+function renderWidths() {
+  const D = derive(state);
+  $('opt-width').replaceChildren(...WIDTHS.map(w => segButton(fmt(w), state.winRequestedWidth === w, () => {
+    state.winRequestedWidth = w;
+    state.winWidth = Math.min(w, largestWidthFor(D.L));
+    state.winWidthExplicit = true;
+    update(true);
+  }, { disabled: w > D.winMax && state.windowMode !== 'locked', title: t('widthDisabled') })));
+  const statusKey = state.winRequestedWidth > D.winMax
+    ? (state.windowMode === 'locked' ? 'windowLockedConflict' : 'windowAutoConflict')
+    : (!state.winWidthExplicit && state.windowMode !== 'locked' ? 'windowUndecided' : null);
+  const status = statusKey && t(statusKey, { requested: fmt(state.winRequestedWidth), w: fmt(D.winW), len: mStr(D.L) });
+  $('window-note').innerHTML = [t('windowNote', { h: fmt(D.y2 - D.y1), c: fmt(D.y1), max: fmt(largestWidthFor(D.L)) }), status && `<strong>${status}</strong>`].filter(Boolean).join('<br>');
+}
+function renderSignStyles() {
+  $('opt-sign-style').replaceChildren(...SIGN_STYLES.map(st => segButton(
+    `${t('ss_' + st.id)}<small>${t(st.lit ? 'litYes' : 'litNo')}</small>`,
+    state.signStyle === st.id, () => { state.signStyle = st.id; update(true); })));
+  $('sign-note').textContent = state.model === 'ft4' ? t('signNoteFlat', { off: fmt(Math.abs(currentSignOffset(derive(state)))) })
+    : state.side === 'both' ? t('signNoteBoth') : t('signNote', { off: fmt(Math.abs(signOffset(state.side))) });
+}
+function renderLpg() {
+  $('opt-lpg').replaceChildren(...[0, 1, 2].map(n => segButton(String(n), state.lpg === n, () => { state.lpg = n; update(true); })));
+}
+function renderSpecs() {
+  const D = derive(state);
+  if (D.model === 'ft4') { renderSpecsFT4(D); return; }
+  const ship = shippingCheck(D), shipKey = ship ? ship.status : 'NONE';
+  const sideLabel = state.side === 'both' ? t('sideBoth') : state.side === 'left' ? t('sideLeft') : t('sideRight');
+  const rows = [
+    [t('specBody'), `${fmt(D.L)} × ${fmt(RULE.W)} × ${fmt(RULE.H)} mm`],
+    [t('specOverall'), `${fmt(D.overallLen)} mm`],
+    [t('specRoadH'), `${fmt(D.roadH)} mm` + (state.sign && state.signText.trim() ? ` · ${t('withSign', { h: fmt(D.roadH + SIGN.GAP + signStyle().H) })}` : '')],
+    [t('specInterior'), `≈ ${fmt(D.interiorH)} mm`],
+    [t('specFloor'), `${fmt(D.ZF)} mm`],
+    [t('specAxles'), `${t(D.axleCount === 1 ? 'axle1' : 'axle2')} · 185R14C (${t('axleVisual')})`],
+    [t('specWindow'), `${sideLabel} · ${fmt(D.winW)} × ${fmt(D.y2 - D.y1)} mm`],
+    [t('specDoor'), t('doorVal', { w: fmt(D.doorW), h: fmt(D.doorH) })],
+    [t('specParts'), `${t(state.fenderPaint ? 'partPaint' : 'partSteel')} · ${state.generator ? t(state.generatorPaint ? 'partPaint' : 'partSteel') : '—'}`],
+    ...(PARTS && PARTS.skin.layouts[String(D.L)] ? [[t('specSkin'), t('skinVal', { n: PARTS.skin.layouts[String(D.L)].panel_count, k: PARTS.skin.layouts[String(D.L)].side_panels_per_side })]] : []),
+    [t('specShip'), t('shipVal', { h: fmt(D.shipH), c: ship ? ship.container : '—', s: t('shipS_' + shipKey, ship ? { line: fmt(ship.line), door: fmt(ship.door), c: ship.container } : {}) })],
+  ];
+  $('length-aside').textContent = `${fmt(D.L)} mm`;
+  $('length-note').textContent = t('lengthNote', { axles: t(D.axleCount === 1 ? 'axle1' : 'axle2'), overall: fmt(D.overallLen) });
+  const strip = [
+    [t('stripBody'), `${fmt(D.L)} × ${fmt(RULE.W)} × ${fmt(RULE.H)}`],
+    [t('stripHeight'), `${fmt(D.roadH)} mm`],
+    [t('stripAxles'), `${D.axleCount} × 185R14C · ${t('axleVisual')}`],
+    [t('stripShip'), t('shipStripVal', { h: fmt(D.shipH), c: ship ? ship.container : '—', s: t('shipShort_' + shipKey) })],
+  ];
+  fillSpecs(rows, strip);
+}
+function renderSpecsFT4(D) {
+  const ship = shippingCheck(D), shipKey = ship ? ship.status : 'NONE';
+  const sign = state.sign && state.signText.trim();
+  const shipVars = { h: fmt(D.shipH), c: ship ? ship.container : '—', s: t('shipS_' + shipKey, ship ? { line: fmt(ship.line), door: fmt(ship.door), c: ship.container } : {}) };
+  fillSpecs([
+    [t('specBody'), `${fmt(D.L)} × ${fmt(D.W)} × ${fmt(D.H)} mm`],
+    [t('specOverall'), `${fmt(D.overallLen)} mm`],
+    [t('specRoadH'), `${fmt(D.roadH)} mm` + (sign ? ` · ${t('withSign', { h: fmt(D.roadH + SIGN.GAP + signStyle().H) })}` : '')],
+    [t('specInterior'), `≈ ${fmt(D.interiorH)} mm`],
+    [t('specFloor'), `${fmt(D.ZF)} mm`],
+    [t('specAxles'), `${t(D.axleCount === 1 ? 'axle1' : 'axle2')} · ${t('tyreFT')} (${t('axleVisual')})`],
+    [t('specWindow'), t('specWindowFT', { w: fmt(D.winW), h: fmt(D.winH), fw: fmt(D.frontWinW) })],
+    [t('specDoor'), t('doorVal', { w: fmt(D.doorW), h: fmt(D.doorH) })],
+    [t('specBodyFT'), t('bodyFTVal')],
+    [t('specShip'), t('shipVal', shipVars)],
+  ], [
+    [t('stripBody'), `${fmt(D.L)} × ${fmt(D.W)} × ${fmt(D.H)}`],
+    [t('stripHeight'), `${fmt(D.roadH)} mm`],
+    [t('stripAxles'), `${D.axleCount} × ${t('tyreFT')} · ${t('axleVisual')}`],
+    [t('stripShip'), t('shipStripVal', { h: fmt(D.shipH), c: ship ? ship.container : '—', s: t('shipShort_' + shipKey) })],
+  ]);
+}
+function fillSpecs(rows, strip) {
+  const frag = document.createDocumentFragment();
+  for (const [k, v] of rows) {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v;
+    frag.append(dt, dd);
+  }
+  $('specs').replaceChildren(frag);
+  $('strip').replaceChildren(...strip.map(([k, v]) => {
+    const d = document.createElement('div');
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.className = 'v'; dd.style.margin = '0'; dd.textContent = v;
+    d.append(dt, dd);
+    return d;
+  }));
+}
+function renderViews() {
+  const views = [['front', t('viewFront')], ['rear', t('viewRear')], ['side', t('viewSide')], ['top', t('viewTop')], ['inside', t('viewInside')]];
+  $('views').replaceChildren(...views.map(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = label;
+    b.setAttribute('aria-pressed', String(activeView === id));
+    b.addEventListener('click', () => goView(id));
+    return b;
+  }));
+}
+function renderFlapButton() {
+  $('flap-toggle').textContent = state.flapOpen ? t('closeWindow') : t('openWindow');
+}
+function renderNotes() {
+  $('notes-list').replaceChildren(...t(state.model === 'ft4' ? 'notesFT' : 'notes').map(s => { const li = document.createElement('li'); li.textContent = s; return li; }));
+}
+function applyI18n() {
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  $('lang-en').setAttribute('aria-pressed', String(lang === 'en'));
+  $('lang-zh').setAttribute('aria-pressed', String(lang === 'zh'));
+  $('drag-hint').textContent = t('dragHint');
+  $('stage').setAttribute('aria-label', lang === 'zh' ? '餐车 3D 视图' : '3D view of the trailer');
+  renderAll();
+  renderNotes();
+  if (typeof refreshSelectionSummary === 'function' && dialog.open) refreshSelectionSummary();
+}
+function renderModelUi() {
+  const ft = state.model === 'ft4';
+  for (const id of ['group-length', 'sub-match-body', 'sub-window-side', 'sub-window-mode', 'sub-window-width', 'group-drawbar']) $(id).hidden = ft;
+  $('brand-mark').textContent = ft ? 'FT' : 'QF';
+  $('brand-name').textContent = t(ft ? 'nameFT' : 'name');
+  $('brand-tag').textContent = t(ft ? 'taglineFT' : 'tagline');
+  $('model-aside').textContent = ft ? 'FT-6' : 'CSQF-9';
+  $('model-note').textContent = t(ft ? 'modelNoteFT' : 'modelNoteQF');
+  $('opt-model').replaceChildren(...[['csqf9', 'CSQF-9', 'modelQFsub'], ['ft4', 'FT-6', 'modelFTsub']].map(([id, code, sub]) =>
+    segButton(`${code}<small>${t(sub)}</small>`, state.model === id, () => setModel(id))));
+  if (ft) {
+    const D = derive(state);
+    $('window-note').textContent = t('windowNoteFT', { w: fmt(D.winW), h: fmt(D.winH), fw: fmt(D.frontWinW), c: fmt(D.sill) });
+  }
+}
+function setModel(id) {
+  if (state.model === id) return;
+  MODEL_FINISH[state.model] = state.finish;
+  state.model = id;
+  state.finish = MODEL_FINISH[id];
+  applyFinish();
+  try { history.replaceState(null, '', '#' + (id === 'ft4' ? 'ft6' : id)); } catch (e) { /* hash is a convenience only */ }
+  renderNotes();
+  update(true);
+  goView(activeView === 'inside' ? 'front' : activeView);
+}
+function savePreviewSlot(slot) {
+  const D = derive(state);
+  previewSlots[slot] = {
+    configuration: { ...state },
+    modelFinishes: { ...MODEL_FINISH },
+    values: {
+      model: state.model, length: D.L, finish: state.finish,
+      side: state.side, windowMode: state.windowMode, requestedWidth: state.winRequestedWidth,
+      workingWidth: D.winW, generator: state.generator, lpg: state.lpg,
+      sign: state.sign, signStyle: state.signStyle, signText: state.signText,
+      fenderPaint: state.fenderPaint, generatorPaint: state.generatorPaint,
+    },
+  };
+  previewComparisonOpen = false;
+  renderCandidateComparison();
+}
+function restorePreviewSlot(slot) {
+  const saved = previewSlots[slot];
+  if (!saved) return;
+  Object.assign(state, saved.configuration);
+  Object.assign(MODEL_FINISH, saved.modelFinishes);
+  applyFinish();
+  try { history.replaceState(null, '', '#' + (state.model === 'ft4' ? 'ft6' : 'csqf9')); } catch (e) { /* hash is a convenience only */ }
+  renderNotes();
+  update(true);
+  goView(state.model === 'ft4' && activeView === 'inside' ? 'front' : activeView);
+}
+function previewRows(saved) {
+  const v = saved.values, fixed = v.model === 'ft4';
+  const side = { left: 'sideLeft', right: 'sideRight', both: 'sideBoth' };
+  const windowMode = v.windowMode === 'locked' ? 'widthLocked' : 'widthAuto';
+  const widthIsRequested = v.windowMode === 'locked' || saved.configuration.winWidthExplicit;
+  const applicable = key => fixed ? t('previewNotUsed') : t(v[key] ? 'previewOn' : 'previewOff');
+  return [
+    [t('previewModel'), t(v.model === 'ft4' ? 'nameFT' : 'name')],
+    [t('previewLength'), `${fmt(v.length)} mm${fixed ? ` · ${t('previewFixed')}` : ''}`],
+    [t('previewFinish'), t('f_' + v.finish)],
+    [t('previewWindowSide'), fixed ? t('previewFixed') : t(side[v.side])],
+    [t('previewWindowMode'), fixed ? t('previewFixed') : t(windowMode)],
+    [t('previewWindowWidth'), fixed ? t('previewFixed') : `${fmt(v.requestedWidth)} mm · ${t(widthIsRequested ? 'previewCustomerRequested' : 'previewDefaultUnselected')}`],
+    [t('previewWorkingWidth'), `${fmt(v.workingWidth)} mm`],
+    [t('previewGenerator'), applicable('generator')],
+    [t('previewLpg'), fixed ? t('previewNotUsed') : String(v.lpg)],
+    [t('previewRoofSign'), `${t(v.sign ? 'previewOn' : 'previewOff')} · ${t('ss_' + v.signStyle)} · ${v.signText}`],
+    [t('previewFenders'), applicable('fenderPaint') === t('previewNotUsed') ? t('previewNotUsed') : t(v.fenderPaint ? 'partPaint' : 'partSteel')],
+    [t('previewGeneratorFinish'), fixed || !v.generator ? t('previewNotUsed') : t(v.generatorPaint ? 'partPaint' : 'partSteel')],
+  ];
+}
+function renderCandidateComparison() {
+  const a = previewSlots.A, b = previewSlots.B;
+  $('preview-slot-a-status').textContent = a ? t('previewStored') : t('previewEmpty');
+  $('preview-slot-b-status').textContent = b ? t('previewStored') : t('previewEmpty');
+  $('preview-restore-a').disabled = !a;
+  $('preview-restore-b').disabled = !b;
+  $('preview-compare-button').disabled = !(a && b);
+  const output = $('preview-comparison');
+  if (!previewComparisonOpen || !a || !b) { output.hidden = true; output.replaceChildren(); return; }
+  const table = document.createElement('table');
+  table.className = 'preview-table';
+  const head = document.createElement('thead'), headRow = document.createElement('tr');
+  for (const label of [t('previewField'), t('previewColA'), t('previewColB')]) {
+    const th = document.createElement('th'); th.scope = 'col'; th.textContent = label; headRow.append(th);
+  }
+  head.append(headRow);
+  const body = document.createElement('tbody');
+  const rowsA = previewRows(a), rowsB = previewRows(b);
+  let differences = 0;
+  rowsA.forEach(([label, valueA], index) => {
+    const valueB = rowsB[index][1], changed = valueA !== valueB;
+    differences += Number(changed);
+    const tr = document.createElement('tr'); tr.dataset.different = String(changed);
+    for (const value of [label, valueA, valueB]) { const td = document.createElement('td'); td.textContent = value; tr.append(td); }
+    body.append(tr);
+  });
+  table.append(head, body);
+  const note = document.createElement('p'); note.className = 'preview-note'; note.textContent = differences ? t('previewDiffNote') : t('previewNoDifferences');
+  output.replaceChildren(table, note);
+  output.hidden = false;
+}
+function renderAll() {
+  renderModelUi();
+  if (state.model !== 'ft4') {
+    renderLengths();
+    renderSides();
+    renderWindowMode();
+    renderWidths();
+    renderLpg();
+  }
+  renderFinish();
+  renderSignStyles();
+  renderSpecs();
+  renderViews();
+  renderFlapButton();
+  $('opt-generator').checked = state.generator;
+  $('opt-fender-paint').checked = state.fenderPaint;
+  $('opt-gen-paint').checked = state.generatorPaint;
+  $('opt-gen-paint').disabled = !state.generator;
+  $('opt-sign').checked = state.sign;
+  $('opt-sign-text').value = state.signText;
+  $('opt-sign-text').disabled = !state.sign;
+  renderCandidateComparison();
+}
+function applyFinish() {
+  const f = FINISHES.find(x => x.id === state.finish);
+  const p = MAT.paint;
+  p.color.set(f.hex);
+  if (f.metal) { p.metalness = 1; p.roughness = 0.07; p.clearcoat = 0; }
+  else { p.metalness = 0; p.roughness = 0.32; p.clearcoat = 1; p.clearcoatRoughness = 0.06; }
+  p.needsUpdate = true;
+  requestRender();
+}
+function update(geometry) {
+  savePublicSelection();
+  renderAll();
+  if (geometry) rebuild();
+}
+
+$('lang-en').addEventListener('click', () => { lang = 'en'; try { localStorage.setItem('tyzon-public-configurator-lang', lang); } catch (e) { /* ignore */ } applyI18n(); });
+$('lang-zh').addEventListener('click', () => { lang = 'zh'; try { localStorage.setItem('tyzon-public-configurator-lang', lang); } catch (e) { /* ignore */ } applyI18n(); });
+$('preview-save-a').addEventListener('click', () => savePreviewSlot('A'));
+$('preview-save-b').addEventListener('click', () => savePreviewSlot('B'));
+$('preview-restore-a').addEventListener('click', () => restorePreviewSlot('A'));
+$('preview-restore-b').addEventListener('click', () => restorePreviewSlot('B'));
+$('preview-compare-button').addEventListener('click', () => { previewComparisonOpen = true; renderCandidateComparison(); });
+$('flap-toggle').addEventListener('click', () => setFlap(!state.flapOpen));
+$('opt-generator').addEventListener('change', e => { state.generator = e.target.checked; update(true); });
+$('opt-fender-paint').addEventListener('change', e => { state.fenderPaint = e.target.checked; update(true); });
+$('opt-gen-paint').addEventListener('change', e => { state.generatorPaint = e.target.checked; update(true); });
+$('opt-sign').addEventListener('change', e => { state.sign = e.target.checked; update(true); });
+let signTimer = null;
+$('opt-sign-text').addEventListener('input', e => {
+  state.signText = e.target.value.toUpperCase();
+  savePublicSelection();
+  clearTimeout(signTimer);
+  signTimer = setTimeout(() => rebuild(), 250);
+});
+
+/* ---------- public display selection ---------- */
+const dialog = $('quote-dialog');
+const PUBLIC_SELECTION_STORAGE_KEY = 'tyzon-public-3d-selection-v1';
+function finishAllowedForModel(finish, model) {
+  return FINISHES.some(item => item.id === finish && (!item.models || item.models.includes(model)));
+}
+function isValidPublicSelection(saved) {
+  if (!saved || saved.version !== 1 || !saved.configuration || !saved.modelFinishes) return false;
+  const c = saved.configuration;
+  const finishes = saved.modelFinishes;
+  return ['csqf9', 'ft4'].includes(c.model) && LENGTHS.includes(c.length)
+    && finishAllowedForModel(c.finish, c.model)
+    && ['left', 'right', 'both'].includes(c.side)
+    && ['auto', 'locked'].includes(c.windowMode)
+    && WIDTHS.includes(c.winRequestedWidth)
+    && typeof c.winWidthExplicit === 'boolean'
+    && typeof c.generator === 'boolean' && [0, 1, 2].includes(c.lpg)
+    && typeof c.sign === 'boolean' && typeof c.signText === 'string' && c.signText.length <= 18
+    && SIGN_STYLES.some(item => item.id === c.signStyle)
+    && typeof c.fenderPaint === 'boolean' && typeof c.generatorPaint === 'boolean'
+    && finishAllowedForModel(finishes.csqf9, 'csqf9')
+    && finishAllowedForModel(finishes.ft4, 'ft4');
+}
+function savePublicSelection() {
+  const configuration = {
+    model: state.model, length: state.length, finish: state.finish,
+    side: state.side, windowMode: state.windowMode,
+    winRequestedWidth: state.winRequestedWidth, winWidthExplicit: state.winWidthExplicit,
+    generator: state.generator, lpg: state.lpg, sign: state.sign,
+    signText: state.signText, signStyle: state.signStyle,
+    fenderPaint: state.fenderPaint, generatorPaint: state.generatorPaint,
+  };
+  const saved = {
+    version: 1,
+    configuration,
+    modelFinishes: { ...MODEL_FINISH, [state.model]: state.finish },
+  };
+  try {
+    sessionStorage.setItem(PUBLIC_SELECTION_STORAGE_KEY, JSON.stringify(saved));
+  } catch (e) { /* browser storage may be unavailable */ }
+}
+function restorePublicSelection() {
+  try {
+    const raw = sessionStorage.getItem(PUBLIC_SELECTION_STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!isValidPublicSelection(saved)) {
+      sessionStorage.removeItem(PUBLIC_SELECTION_STORAGE_KEY);
+      return;
+    }
+    const c = saved.configuration;
+    Object.assign(state, {
+      model: c.model, length: c.length, finish: c.finish,
+      side: c.side, windowMode: c.windowMode,
+      winRequestedWidth: c.winRequestedWidth,
+      winWidthExplicit: c.winWidthExplicit,
+      generator: c.generator, lpg: c.lpg,
+      sign: c.sign, signText: c.signText.toUpperCase(), signStyle: c.signStyle,
+      fenderPaint: c.fenderPaint, generatorPaint: c.generatorPaint,
+      winWidth: Math.min(c.winRequestedWidth, largestWidthFor(c.length)),
+    });
+    MODEL_FINISH.csqf9 = saved.modelFinishes.csqf9;
+    MODEL_FINISH.ft4 = saved.modelFinishes.ft4;
+    MODEL_FINISH[state.model] = state.finish;
+  } catch (e) {
+    try { sessionStorage.removeItem(PUBLIC_SELECTION_STORAGE_KEY); } catch (ignored) {}
+  }
+}
+restorePublicSelection();
+function publicSelectionText() {
+  const D = derive(state);
+  const zh = lang === 'zh';
+  const label = zh ? {
+    title: 'TYZON 3D 选配摘要', model: '车型', body: '车身尺寸', finish: '车身颜色／表面',
+    window: '服务窗', generator: '发电机箱', lpg: '液化气瓶', sign: '车顶广告牌',
+    fenders: '轮眉表面', generatorFinish: '发电机箱表面', yes: '是', no: '否',
+    fixed: '固定布局', bottles: '个', note: '说明',
+    disclaimer: '仅供外观与方案沟通；最终尺寸、设备布置和规格在生产前确认。',
+  } : {
+    title: 'TYZON 3D selection summary', model: 'Model', body: 'Body size', finish: 'Finish',
+    window: 'Service window', generator: 'Generator enclosure', lpg: 'LPG bottles', sign: 'Roof sign',
+    fenders: 'Fender finish', generatorFinish: 'Generator finish', yes: 'Yes', no: 'No',
+    fixed: 'Fixed layout', bottles: '', note: 'Note',
+    disclaimer: 'For visual planning and discussion only. Final dimensions, equipment layout and specifications are confirmed before production.',
+  };
+  const modelName = state.model === 'ft4' ? 'FT-6' : 'CSQF-9';
+  const lines = [
+    label.title,
+    `${label.model}: ${modelName}`,
+    `${label.body}: ${fmt(D.L)} × ${fmt(D.W || RULE.W)} × ${fmt(D.H || RULE.H)} mm`,
+    `${label.finish}: ${t('f_' + state.finish)}`,
+  ];
+  if (state.model === 'ft4') {
+    lines.push(`${label.window}: ${label.fixed} · ${t('specWindowFT', { w: fmt(D.winW), h: fmt(D.winH), fw: fmt(D.frontWinW) })}`);
+  } else {
+    lines.push(`${label.window}: ${t('side' + state.side[0].toUpperCase() + state.side.slice(1))} · ${fmt(D.winW)} mm`);
+    lines.push(`${label.generator}: ${state.generator ? label.yes : label.no}`);
+    lines.push(`${label.lpg}: ${state.lpg}${label.bottles}`);
+    lines.push(`${label.fenders}: ${state.fenderPaint ? t('partPaint') : t('partSteel')}`);
+    if (state.generator) lines.push(`${label.generatorFinish}: ${state.generatorPaint ? t('partPaint') : t('partSteel')}`);
+  }
+  const sign = state.sign && state.signText.trim();
+  lines.push(`${label.sign}: ${sign ? `${t('ss_' + signStyle().id)} · ${state.signText.trim()}` : label.no}`);
+  lines.push('', `${label.note}: ${label.disclaimer}`);
+  return lines.join('\n');
+}
+function refreshSelectionSummary() {
+  $('q-json').textContent = publicSelectionText();
+  $('q-result-note').textContent = t('qResultNote');
+  $('q-copied').hidden = true;
+}
+$('quote-open').addEventListener('click', () => {
+  refreshSelectionSummary();
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open', '');
+});
+$('q-close').addEventListener('click', () => dialog.close());
+$('q-copy').addEventListener('click', () => {
+  const text = $('q-json').textContent;
+  const done = () => { $('q-copied').hidden = false; };
+  const fallback = () => {
+    const range = document.createRange();
+    range.selectNodeContents($('q-json'));
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+  try {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } catch (e) { fallback(); }
+});
+
+/* ---------- boot ---------- */
+window.__qfBooted = true;
+applyI18n();
+if (!renderer) {
+  overlay.hidden = false;
+  overlay.textContent = t('noWebgl');
+} else {
+  applyFinish();
+  resize();
+  new ResizeObserver(resize).observe(stageEl);
+  goView('front', true);
+  requestAnimationFrame(tick);
+  if (state.model === 'ft4') rebuild();
+  loadParts().then(p => {
+    PARTS = p;
+    if (p.place?.wheels?.tire_diameter_mm && Math.abs(p.place.wheels.tire_diameter_mm - RULE.TIRE_D) > 0.5) {
+      console.warn('Display wheel size differs from the page preview setting');
+    }
+    renderSpecs();
+    if (state.model !== 'ft4') rebuild();
+  }).catch(err => {
+    console.error(err);
+    qfFailed = true;
+    if (state.model !== 'ft4') clearStage(t('partsFailed'));
+  });
+}
+</script>
+
