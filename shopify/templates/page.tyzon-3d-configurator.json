@@ -1,0 +1,23 @@
+{
+  "sections": {
+    "tyzon_3d_configurator": {
+      "type": "tyzon-3d-configurator-section",
+      "settings": {
+        "heading": "Build your food trailer in 3D",
+        "description": "Explore models, colours, service windows and exterior options. Final specifications are confirmed before production.",
+        "configurator_url": "https://wangjuntiktok-cell.github.io/tyzon-3d-configurator-public/",
+        "accessible_label": "TYZON 3D food trailer configurator",
+        "full_width": true,
+        "text_alignment": "center",
+        "desktop_height": 900,
+        "mobile_height": 1200,
+        "corner_radius": 0,
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
+    }
+  },
+  "order": [
+    "tyzon_3d_configurator"
+  ]
+}
